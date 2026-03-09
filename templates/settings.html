@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - AI Recruiter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings" class="active"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1>Settings</h1>
+                <p class="subtitle">Manage your account, preferences, and recruitment settings.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn-primary" id="saveAllSettings"><i class="fas fa-save"></i> Save changes</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-content">
+            <!-- Profile -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <h2><i class="fas fa-user"></i> Profile</h2>
+                </div>
+                <div class="settings-card-body">
+                    <div class="settings-profile-row">
+                        <div class="settings-avatar" aria-hidden="true">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="settings-profile-fields">
+                            <div class="form-group">
+                                <label class="form-label" for="profileName">Full name</label>
+                                <input type="text" id="profileName" class="form-input" value="Recruiter" placeholder="Your name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="profileEmail">Email</label>
+                                <input type="email" id="profileEmail" class="form-input" value="recruiter@company.com" placeholder="you@company.com">
+                            </div>
+                            <button type="button" class="btn-secondary">Change photo</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Account -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <h2><i class="fas fa-key"></i> Account</h2>
+                </div>
+                <div class="settings-card-body">
+                    <div class="form-group">
+                        <label class="form-label" for="timezone">Timezone</label>
+                        <select id="timezone" class="form-input form-select">
+                            <option value="UTC">UTC</option>
+                            <option value="America/New_York" selected>Eastern (ET)</option>
+                            <option value="America/Chicago">Central (CT)</option>
+                            <option value="America/Los_Angeles">Pacific (PT)</option>
+                            <option value="Europe/London">London (GMT)</option>
+                            <option value="Asia/Karachi">Pakistan (PKT)</option>
+                            <option value="Asia/Dubai">Dubai (GST)</option>
+                            <option value="Asia/Kolkata">India (IST)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="language">Language</label>
+                        <select id="language" class="form-input form-select">
+                            <option value="en" selected>English</option>
+                            <option value="ur">Urdu</option>
+                            <option value="ar">Arabic</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </div>
+                    <div class="settings-action-row">
+                        <button type="button" class="btn-secondary" id="changePassword">Change password</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <h2><i class="fas fa-bell"></i> Notifications</h2>
+                </div>
+                <div class="settings-card-body">
+                    <div class="settings-toggle-row">
+                        <div>
+                            <span class="settings-toggle-label">Email notifications</span>
+                            <span class="settings-toggle-desc">Receive recruitment alerts and summaries by email</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-toggle-row">
+                        <div>
+                            <span class="settings-toggle-label">New applications</span>
+                            <span class="settings-toggle-desc">Notify when a new candidate applies</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="newApplications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-toggle-row">
+                        <div>
+                            <span class="settings-toggle-label">AI insights</span>
+                            <span class="settings-toggle-desc">Receive AI recommendations and match alerts</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="aiInsights" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-toggle-row">
+                        <div>
+                            <span class="settings-toggle-label">Interview reminders</span>
+                            <span class="settings-toggle-desc">Remind before scheduled interviews</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="interviewReminders" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI & Screening -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <h2><i class="fas fa-robot"></i> AI & Screening</h2>
+                </div>
+                <div class="settings-card-body">
+                    <div class="settings-toggle-row">
+                        <div>
+                            <span class="settings-toggle-label">Auto-screen resumes</span>
+                            <span class="settings-toggle-desc">AI screens new resumes against job requirements automatically</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="autoScreen" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="minMatchScore">Minimum match score to shortlist (%)</label>
+                        <input type="number" id="minMatchScore" class="form-input" value="70" min="50" max="95" step="5" placeholder="70">
+                    </div>
+                    <div class="settings-toggle-row">
+                        <div>
+                            <span class="settings-toggle-label">Show AI confidence on profiles</span>
+                            <span class="settings-toggle-desc">Display match and confidence scores on candidate cards</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="showAiScores" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <h2><i class="fas fa-shield-alt"></i> Security</h2>
+                </div>
+                <div class="settings-card-body">
+                    <div class="settings-toggle-row">
+                        <div>
+                            <span class="settings-toggle-label">Two-factor authentication</span>
+                            <span class="settings-toggle-desc">Add an extra layer of security to your account</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="twoFactor">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-action-row">
+                        <button type="button" class="btn-secondary">Manage connected devices</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var overlay = document.getElementById('drawerOverlay');
+            var toggle = document.getElementById('drawerToggle');
+            var closeBtn = document.getElementById('drawerClose');
+            if (toggle) toggle.addEventListener('click', function() { document.body.classList.add('drawer-open'); });
+            if (closeBtn) closeBtn.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+            if (overlay) overlay.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+        })();
+
+        (function() {
+            var saveBtn = document.getElementById('saveAllSettings');
+            var changePw = document.getElementById('changePassword');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function() {
+                    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                    saveBtn.disabled = true;
+                    setTimeout(function() {
+                        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save changes';
+                        saveBtn.disabled = false;
+                    }, 800);
+                });
+            }
+            if (changePw) {
+                changePw.addEventListener('click', function() {
+                    alert('Change password flow would open here.');
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

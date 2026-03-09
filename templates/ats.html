@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening (AI ATS) - AI Recruiter</title>
+
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Drawer overlay (for mobile) -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats" class="active"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1>Resume Screening (AI ATS)</h1>
+                <p class="subtitle">AI-powered resume parsing and candidate matching</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="openBulkUploadModal()"><i class="fas fa-upload"></i> Bulk Upload</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="job-stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Resumes Processed</h3>
+                    <p class="stat-value" id="processedCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Qualified</h3>
+                    <p class="stat-value" id="qualifiedCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Pending Review</h3>
+                    <p class="stat-value" id="pendingCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Avg. Match Score</h3>
+                    <p class="stat-value" id="avgScore">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="ats-upload-section">
+            <div class="upload-card">
+                <div class="upload-header">
+                    <h2><i class="fas fa-cloud-upload-alt"></i> Upload Resume</h2>
+                    <p>Select a job position to match against</p>
+                </div>
+                <div class="upload-body">
+                    <div class="job-selector">
+                        <label for="jobSelector"><i class="fas fa-briefcase"></i> Select Job Position *</label>
+                        <select id="jobSelector" class="filter-select" required>
+                            <option value="">Choose a job position...</option>
+                        </select>
+                    </div>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('resumeFile').click()">
+                        <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleFileSelect(event)">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h3>Drag & Drop Resume Here</h3>
+                        <p>or click to browse</p>
+                        <small>Supports PDF, DOC, DOCX (Max 10MB)</small>
+                    </div>
+                    <div id="fileInfo" class="file-info" style="display: none;">
+                        <div class="file-details">
+                            <i class="fas fa-file-pdf"></i>
+                            <div>
+                                <strong id="fileName"></strong>
+                                <span id="fileSize"></span>
+                            </div>
+                            <button class="btn-icon-small" onclick="removeFile()"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="processBtn" onclick="processResume()" style="display: none; width: 100%; margin-top: 15px;">
+                        <i class="fas fa-magic"></i> Process with AI
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screening Results -->
+        <div id="screeningResults" style="display: none;">
+            <div class="screening-header">
+                <h2><i class="fas fa-robot"></i> AI Screening Results</h2>
+                <button class="btn-secondary" onclick="exportResults()"><i class="fas fa-download"></i> Export Report</button>
+            </div>
+
+            <div class="screening-content">
+                <!-- Match Score Card -->
+                <div class="match-score-card">
+                    <div class="score-circle">
+                        <svg class="score-ring" width="200" height="200">
+                            <circle cx="100" cy="100" r="85" stroke="#e2e8f0" stroke-width="12" fill="none"></circle>
+                            <circle id="scoreRing" cx="100" cy="100" r="85" stroke="#667eea" stroke-width="12" fill="none" 
+                                    stroke-dasharray="534" stroke-dashoffset="534" transform="rotate(-90 100 100)"></circle>
+                        </svg>
+                        <div class="score-text">
+                            <span id="matchScore">0</span>
+                            <small>% Match</small>
+                        </div>
+                    </div>
+                    <div class="score-details">
+                        <h3 id="candidateName">Candidate Name</h3>
+                        <p id="candidateRole">Applied Role</p>
+                        <div class="score-breakdown">
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Skills Match</span>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" id="skillsBar" style="width: 0%"></div>
+                                </div>
+                                <span class="breakdown-value" id="skillsScore">0%</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Experience Match</span>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" id="experienceBar" style="width: 0%"></div>
+                                </div>
+                                <span class="breakdown-value" id="experienceScore">0%</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Education Match</span>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" id="educationBar" style="width: 0%"></div>
+                                </div>
+                                <span class="breakdown-value" id="educationScore">0%</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Keywords Match</span>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" id="keywordsBar" style="width: 0%"></div>
+                                </div>
+                                <span class="breakdown-value" id="keywordsScore">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resume Analysis -->
+                <div class="analysis-section">
+                    <div class="analysis-card">
+                        <h3><i class="fas fa-user"></i> Extracted Information</h3>
+                        <div class="info-grid" id="extractedInfo">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h3><i class="fas fa-code"></i> Skills Analysis</h3>
+                        <div class="skills-analysis">
+                            <div class="skills-matched">
+                                <h4>Matched Skills</h4>
+                                <div class="skills-list" id="matchedSkills">
+                                    <!-- Will be populated dynamically -->
+                                </div>
+                            </div>
+                            <div class="skills-missing">
+                                <h4>Missing Skills</h4>
+                                <div class="skills-list" id="missingSkills">
+                                    <!-- Will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h3><i class="fas fa-chart-bar"></i> Experience Analysis</h3>
+                        <div class="experience-analysis" id="experienceAnalysis">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h3><i class="fas fa-lightbulb"></i> AI Recommendations</h3>
+                        <div class="recommendations" id="recommendations">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="screening-actions">
+                <button class="btn-primary" onclick="shortlistCandidate()">
+                    <i class="fas fa-star"></i> Shortlist Candidate
+                </button>
+                <button class="btn-secondary" onclick="scheduleInterview()">
+                    <i class="fas fa-calendar-plus"></i> Schedule Interview
+                </button>
+                <button class="btn-secondary" onclick="rejectCandidate()">
+                    <i class="fas fa-times-circle"></i> Reject
+                </button>
+                <button class="btn-secondary" onclick="resetScreening()">
+                    <i class="fas fa-redo"></i> Process Another
+                </button>
+            </div>
+        </div>
+
+        <!-- Screening History -->
+        <div class="screening-history">
+            <div class="history-header">
+                <h2><i class="fas fa-history"></i> Recent Screenings</h2>
+                <button class="btn-secondary" onclick="clearHistory()"><i class="fas fa-trash"></i> Clear History</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <!-- Will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Upload Modal -->
+    <div id="bulkUploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-upload"></i> Bulk Upload Resumes</h2>
+                <button class="modal-close" onclick="closeBulkUploadModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="job-selector">
+                    <label for="bulkJobSelector"><i class="fas fa-briefcase"></i> Select Job Position *</label>
+                    <select id="bulkJobSelector" class="filter-select" required>
+                        <option value="">Choose a job position...</option>
+                    </select>
+                </div>
+                <div class="upload-area" id="bulkUploadArea" onclick="document.getElementById('bulkResumeFiles').click()">
+                    <input type="file" id="bulkResumeFiles" accept=".pdf,.doc,.docx" multiple style="display: none;" onchange="handleBulkFileSelect(event)">
+                    <div class="upload-icon">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3>Select Multiple Resumes</h3>
+                    <p>or drag & drop files here</p>
+                    <small>Supports PDF, DOC, DOCX (Max 10MB per file)</small>
+                </div>
+                <div id="bulkFileList" class="bulk-file-list"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeBulkUploadModal()">Cancel</button>
+                    <button type="button" class="btn-submit" onclick="processBulkUpload()">
+                        <i class="fas fa-magic"></i> Process All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize: Load jobs and screening history
+        let screeningHistory = [];
+        let currentScreening = null;
+        let selectedFile = null;
+        let bulkFiles = [];
+
+        // Load jobs from localStorage
+        function loadJobs() {
+            const jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+            const jobSelector = document.getElementById('jobSelector');
+            const bulkJobSelector = document.getElementById('bulkJobSelector');
+            
+            jobSelector.innerHTML = '<option value="">Choose a job position...</option>';
+            bulkJobSelector.innerHTML = '<option value="">Choose a job position...</option>';
+            
+            if (jobs.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No jobs available. Create a job first.';
+                jobSelector.appendChild(option);
+                bulkJobSelector.appendChild(option.cloneNode(true));
+                return;
+            }
+            
+            jobs.forEach(job => {
+                const option = document.createElement('option');
+                option.value = job.id;
+                option.textContent = job.title;
+                jobSelector.appendChild(option);
+                bulkJobSelector.appendChild(option.cloneNode(true));
+            });
+        }
+
+        // Load screening history
+        function loadHistory() {
+            const saved = localStorage.getItem('screeningHistory');
+            if (saved) {
+                screeningHistory = JSON.parse(saved);
+            }
+            renderHistory();
+            updateStats();
+        }
+
+        // Handle file select
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('processBtn').style.display = 'block';
+                document.getElementById('uploadArea').style.display = 'none';
+            }
+        }
+
+        // Handle bulk file select
+        function handleBulkFileSelect(event) {
+            const files = Array.from(event.target.files);
+            bulkFiles = files;
+            renderBulkFileList();
+        }
+
+        // Render bulk file list
+        function renderBulkFileList() {
+            const container = document.getElementById('bulkFileList');
+            container.innerHTML = '';
+            
+            if (bulkFiles.length === 0) return;
+            
+            const list = document.createElement('div');
+            list.className = 'bulk-files';
+            list.innerHTML = `<strong>${bulkFiles.length} file(s) selected:</strong>`;
+            
+            const fileList = document.createElement('ul');
+            bulkFiles.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <i class="fas fa-file-pdf"></i>
+                    <span>${file.name}</span>
+                    <span class="file-size">${formatFileSize(file.size)}</span>
+                    <button class="btn-icon-small" onclick="removeBulkFile(${index})"><i class="fas fa-times"></i></button>
+                `;
+                fileList.appendChild(li);
+            });
+            
+            list.appendChild(fileList);
+            container.appendChild(list);
+        }
+
+        // Remove bulk file
+        function removeBulkFile(index) {
+            bulkFiles.splice(index, 1);
+            renderBulkFileList();
+        }
+
+        // Remove file
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('resumeFile').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('processBtn').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'block';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Process resume
+        function processResume() {
+            const jobId = document.getElementById('jobSelector').value;
+            if (!jobId) {
+                showNotification('Please select a job position', 'error');
+                return;
+            }
+            
+            if (!selectedFile) {
+                showNotification('Please select a resume file', 'error');
+                return;
+            }
+
+            // Show loading
+            showNotification('Processing resume with AI...', 'success');
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                const jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+                const job = jobs.find(j => j.id == jobId);
+                
+                if (!job) {
+                    showNotification('Job not found', 'error');
+                    return;
+                }
+
+                // Generate mock screening results
+                const screening = generateScreeningResults(selectedFile.name, job);
+                currentScreening = screening;
+                
+                displayScreeningResults(screening);
+                addToHistory(screening);
+                updateStats();
+                
+                showNotification('Resume processed successfully!', 'success');
+            }, 2000);
+        }
+
+        // Generate mock screening results
+        function generateScreeningResults(fileName, job) {
+            const matchScore = Math.floor(Math.random() * 30) + 70; // 70-100
+            const skillsScore = Math.floor(Math.random() * 20) + 75;
+            const experienceScore = Math.floor(Math.random() * 20) + 70;
+            const educationScore = Math.floor(Math.random() * 20) + 75;
+            const keywordsScore = Math.floor(Math.random() * 20) + 80;
+
+            // Extract name from filename (mock)
+            const name = fileName.replace(/\.(pdf|doc|docx)$/i, '').replace(/[_-]/g, ' ').split(' ').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' ');
+
+            // Mock skills
+            const jobSkills = job.requirements || [];
+            const matchedSkills = jobSkills.slice(0, Math.floor(jobSkills.length * 0.7));
+            const missingSkills = jobSkills.slice(matchedSkills.length);
+
+            return {
+                id: Date.now(),
+                fileName: fileName,
+                candidateName: name || 'John Doe',
+                candidateRole: job.title,
+                jobId: job.id,
+                jobTitle: job.title,
+                matchScore: matchScore,
+                skillsScore: skillsScore,
+                experienceScore: experienceScore,
+                educationScore: educationScore,
+                keywordsScore: keywordsScore,
+                matchedSkills: matchedSkills,
+                missingSkills: missingSkills,
+                extractedInfo: {
+                    email: 'candidate@email.com',
+                    phone: '+1 234-567-8900',
+                    location: 'New York, NY',
+                    experience: '5 years',
+                    education: 'Bachelor\'s Degree in Computer Science',
+                    summary: 'Experienced professional with strong background in software development...'
+                },
+                recommendations: [
+                    'Strong technical skills match with job requirements',
+                    'Consider scheduling technical interview',
+                    'Verify work experience with references',
+                    'Good cultural fit based on profile'
+                ],
+                processedDate: new Date().toLocaleString()
+            };
+        }
+
+        // Display screening results
+        function displayScreeningResults(screening) {
+            document.getElementById('screeningResults').style.display = 'block';
+            
+            // Update match score
+            document.getElementById('matchScore').textContent = screening.matchScore;
+            animateScore(screening.matchScore);
+            
+            // Update candidate info
+            document.getElementById('candidateName').textContent = screening.candidateName;
+            document.getElementById('candidateRole').textContent = screening.candidateRole;
+            
+            // Update breakdown
+            document.getElementById('skillsScore').textContent = screening.skillsScore + '%';
+            document.getElementById('skillsBar').style.width = screening.skillsScore + '%';
+            
+            document.getElementById('experienceScore').textContent = screening.experienceScore + '%';
+            document.getElementById('experienceBar').style.width = screening.experienceScore + '%';
+            
+            document.getElementById('educationScore').textContent = screening.educationScore + '%';
+            document.getElementById('educationBar').style.width = screening.educationScore + '%';
+            
+            document.getElementById('keywordsScore').textContent = screening.keywordsScore + '%';
+            document.getElementById('keywordsBar').style.width = screening.keywordsScore + '%';
+            
+            // Update extracted info
+            const infoGrid = document.getElementById('extractedInfo');
+            infoGrid.innerHTML = `
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <label>Email</label>
+                        <p>${screening.extractedInfo.email}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <label>Phone</label>
+                        <p>${screening.extractedInfo.phone}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <label>Location</label>
+                        <p>${screening.extractedInfo.location}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <label>Experience</label>
+                        <p>${screening.extractedInfo.experience}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>
+                        <label>Education</label>
+                        <p>${screening.extractedInfo.education}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-file-alt"></i>
+                    <div>
+                        <label>Summary</label>
+                        <p>${screening.extractedInfo.summary}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Update skills
+            const matchedSkillsDiv = document.getElementById('matchedSkills');
+            matchedSkillsDiv.innerHTML = screening.matchedSkills.map(skill => 
+                `<span class="skill-tag matched">${skill}</span>`
+            ).join('');
+            
+            const missingSkillsDiv = document.getElementById('missingSkills');
+            missingSkillsDiv.innerHTML = screening.missingSkills.map(skill => 
+                `<span class="skill-tag missing">${skill}</span>`
+            ).join('');
+            
+            // Update experience analysis
+            document.getElementById('experienceAnalysis').innerHTML = `
+                <div class="exp-item">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>Experience Level</strong>
+                        <p>${screening.extractedInfo.experience} of relevant experience</p>
+                    </div>
+                </div>
+                <div class="exp-item">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>Education Match</strong>
+                        <p>${screening.extractedInfo.education}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Update recommendations
+            const recommendationsDiv = document.getElementById('recommendations');
+            recommendationsDiv.innerHTML = screening.recommendations.map(rec => 
+                `<div class="recommendation-item"><i class="fas fa-lightbulb"></i><p>${rec}</p></div>`
+            ).join('');
+            
+            // Scroll to results
+            document.getElementById('screeningResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Animate score ring
+        function animateScore(score) {
+            const circumference = 2 * Math.PI * 85;
+            const offset = circumference - (score / 100) * circumference;
+            const ring = document.getElementById('scoreRing');
+            ring.style.strokeDashoffset = offset;
+            ring.style.transition = 'stroke-dashoffset 1s ease-in-out';
+        }
+
+        // Add to history
+        function addToHistory(screening) {
+            screeningHistory.unshift(screening);
+            if (screeningHistory.length > 20) {
+                screeningHistory = screeningHistory.slice(0, 20);
+            }
+            localStorage.setItem('screeningHistory', JSON.stringify(screeningHistory));
+            renderHistory();
+        }
+
+        // Render history
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            container.innerHTML = '';
+            
+            if (screeningHistory.length === 0) {
+                container.innerHTML = '<div class="no-jobs"><i class="fas fa-history"></i><p>No screening history yet.</p></div>';
+                return;
+            }
+            
+            screeningHistory.forEach(screening => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                const scoreClass = screening.matchScore >= 80 ? 'high' : screening.matchScore >= 60 ? 'medium' : 'low';
+                item.innerHTML = `
+                    <div class="history-info">
+                        <div class="history-avatar">
+                            <div class="avatar">${screening.candidateName.split(' ').map(n => n[0]).join('')}</div>
+                            <div class="score-badge ${scoreClass}">${screening.matchScore}%</div>
+                        </div>
+                        <div class="history-details">
+                            <h4>${screening.candidateName}</h4>
+                            <p><i class="fas fa-briefcase"></i> ${screening.jobTitle}</p>
+                            <p><i class="fas fa-file"></i> ${screening.fileName}</p>
+                            <small><i class="fas fa-clock"></i> ${screening.processedDate}</small>
+                        </div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="btn-icon-small" onclick="viewHistoryItem(${screening.id})" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon-small" onclick="deleteHistoryItem(${screening.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // View history item
+        function viewHistoryItem(id) {
+            const screening = screeningHistory.find(s => s.id === id);
+            if (screening) {
+                currentScreening = screening;
+                displayScreeningResults(screening);
+            }
+        }
+
+        // Delete history item
+        function deleteHistoryItem(id) {
+            screeningHistory = screeningHistory.filter(s => s.id !== id);
+            localStorage.setItem('screeningHistory', JSON.stringify(screeningHistory));
+            renderHistory();
+            updateStats();
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('processedCount').textContent = screeningHistory.length;
+            const qualified = screeningHistory.filter(s => s.matchScore >= 70).length;
+            const pending = screeningHistory.filter(s => s.matchScore >= 60 && s.matchScore < 70).length;
+            const avgScore = screeningHistory.length > 0 
+                ? Math.round(screeningHistory.reduce((sum, s) => sum + s.matchScore, 0) / screeningHistory.length)
+                : 0;
+            
+            document.getElementById('qualifiedCount').textContent = qualified;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('avgScore').textContent = avgScore + '%';
+        }
+
+        // Action functions
+        function shortlistCandidate() {
+            if (currentScreening) {
+                showNotification('Candidate shortlisted successfully!', 'success');
+                // In real app, this would add to candidates list
+            }
+        }
+
+        function scheduleInterview() {
+            if (currentScreening) {
+                showNotification('Interview scheduling feature coming soon!', 'success');
+            }
+        }
+
+        function rejectCandidate() {
+            if (currentScreening) {
+                if (confirm('Are you sure you want to reject this candidate?')) {
+                    showNotification('Candidate rejected', 'success');
+                }
+            }
+        }
+
+        function resetScreening() {
+            document.getElementById('screeningResults').style.display = 'none';
+            removeFile();
+            document.getElementById('jobSelector').value = '';
+            currentScreening = null;
+        }
+
+        function exportResults() {
+            if (currentScreening) {
+                showNotification('Exporting screening report...', 'success');
+                // In real app, this would generate and download PDF
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all screening history?')) {
+                screeningHistory = [];
+                localStorage.removeItem('screeningHistory');
+                renderHistory();
+                updateStats();
+                showNotification('History cleared', 'success');
+            }
+        }
+
+        // Bulk upload functions
+        function openBulkUploadModal() {
+            document.getElementById('bulkUploadModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBulkUploadModal() {
+            document.getElementById('bulkUploadModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            bulkFiles = [];
+            document.getElementById('bulkResumeFiles').value = '';
+            document.getElementById('bulkFileList').innerHTML = '';
+        }
+
+        function processBulkUpload() {
+            const jobId = document.getElementById('bulkJobSelector').value;
+            if (!jobId) {
+                showNotification('Please select a job position', 'error');
+                return;
+            }
+            
+            if (bulkFiles.length === 0) {
+                showNotification('Please select at least one file', 'error');
+                return;
+            }
+
+            showNotification(`Processing ${bulkFiles.length} resume(s)...`, 'success');
+            // In real app, this would process all files
+            setTimeout(() => {
+                showNotification('Bulk processing completed!', 'success');
+                closeBulkUploadModal();
+            }, 2000);
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.add('drag-over');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.remove('drag-over');
+            }, false);
+        });
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                document.getElementById('resumeFile').files = files;
+                handleFileSelect({ target: { files: files } });
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bulkUploadModal');
+            if (event.target === modal) {
+                closeBulkUploadModal();
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadJobs();
+            loadHistory();
+        });
+    </script>
+
+    <script>
+        (function() {
+            var drawer = document.getElementById('sidebarDrawer');
+            var overlay = document.getElementById('drawerOverlay');
+            var toggle = document.getElementById('drawerToggle');
+            var closeBtn = document.getElementById('drawerClose');
+            if (toggle) toggle.addEventListener('click', function() { document.body.classList.add('drawer-open'); });
+            if (closeBtn) closeBtn.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+            if (overlay) overlay.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+        })();
+    </script>
+
+</body>
+</html>
+

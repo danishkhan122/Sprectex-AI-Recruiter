@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Positions - AI Recruiter</title>
+
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Drawer overlay (for mobile) -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs" class="active"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1>Job Positions</h1>
+                <p class="subtitle">Manage and track all your job openings</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="openJobModal()"><i class="fas fa-plus"></i> Post New Job</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="job-stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Jobs</h3>
+                    <p class="stat-value">24</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Active</h3>
+                    <p class="stat-value">18</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>On Hold</h3>
+                    <p class="stat-value">4</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Applications</h3>
+                    <p class="stat-value">1,247</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="filters-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search jobs by title, department, or location..." id="jobSearch">
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" id="departmentFilter">
+                    <option value="">All Departments</option>
+                    <option value="IT">IT</option>
+                    <option value="Finance">Finance</option>
+                    <option value="HR">Human Resources</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Sales">Sales</option>
+                </select>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="on-hold">On Hold</option>
+                    <option value="closed">Closed</option>
+                    <option value="draft">Draft</option>
+                </select>
+                <select class="filter-select" id="sortFilter">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="applications">Most Applications</option>
+                    <option value="title">Title A-Z</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Job Listings -->
+        <div class="jobs-container" id="jobsContainer">
+            <!-- Jobs will be dynamically loaded here -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+            <div class="page-numbers">
+                <button class="page-number active">1</button>
+                <button class="page-number">2</button>
+                <button class="page-number">3</button>
+                <span class="page-ellipsis">...</span>
+                <button class="page-number">10</button>
+            </div>
+            <button class="page-btn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Post Job Modal -->
+    <div id="jobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-briefcase"></i> Post New Job</h2>
+                <button class="modal-close" onclick="closeJobModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="jobForm" onsubmit="submitJob(event)">
+                <div class="form-group">
+                    <label for="jobTitle">Job Title *</label>
+                    <input type="text" id="jobTitle" name="jobTitle" required placeholder="e.g., Senior Python Developer">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="department">Department *</label>
+                        <select id="department" name="department" required>
+                            <option value="">Select Department</option>
+                            <option value="IT">IT</option>
+                            <option value="Finance">Finance</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subDepartment">Sub-Department</label>
+                        <input type="text" id="subDepartment" name="subDepartment" placeholder="e.g., Software Development">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location">Location *</label>
+                        <input type="text" id="location" name="location" required placeholder="e.g., Remote, New York, NY">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="jobType">Job Type *</label>
+                        <select id="jobType" name="jobType" required>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="jobDescription">Job Description *</label>
+                    <textarea id="jobDescription" name="jobDescription" rows="4" required placeholder="Describe the role, responsibilities, and what you're looking for..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="requirements">Skills/Requirements (comma-separated) *</label>
+                    <input type="text" id="requirements" name="requirements" required placeholder="e.g., Python, Django, PostgreSQL, AWS, 5+ years">
+                    <small>Separate each requirement with a comma</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status">Status *</label>
+                    <select id="status" name="status" required>
+                        <option value="active">Active</option>
+                        <option value="on-hold">On Hold</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeJobModal()">Cancel</button>
+                    <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Post Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize: Load jobs from localStorage or use default jobs
+        let jobs = [];
+        
+        // Default sample jobs
+        const defaultJobs = [
+            {
+                id: 1,
+                title: "Senior Python Developer",
+                department: "IT",
+                subDepartment: "Software Development",
+                location: "Remote",
+                jobType: "Full-time",
+                description: "We are looking for an experienced Python Developer to join our team. You will be responsible for developing and maintaining backend services...",
+                requirements: ["Python", "Django", "PostgreSQL", "AWS", "5+ years"],
+                status: "active",
+                applications: 342,
+                shortlisted: 45,
+                postedDate: "15 Nov 2025",
+                sources: {
+                    linkedin: 145,
+                    indeed: 98,
+                    company: 52,
+                    referral: 32,
+                    other: 15
+                }
+            },
+            {
+                id: 2,
+                title: "React Developer",
+                department: "IT",
+                subDepartment: "Software Development",
+                location: "New York, NY",
+                jobType: "Full-time",
+                description: "Join our frontend team as a React Developer. Build beautiful and responsive user interfaces using modern React patterns and best practices...",
+                requirements: ["React", "TypeScript", "Redux", "CSS3", "3+ years"],
+                status: "active",
+                applications: 289,
+                shortlisted: 32,
+                postedDate: "12 Nov 2025",
+                sources: {
+                    linkedin: 120,
+                    indeed: 85,
+                    company: 45,
+                    referral: 28,
+                    other: 11
+                }
+            },
+            {
+                id: 3,
+                title: "UI/UX Designer",
+                department: "IT",
+                subDepartment: "UI/UX Design",
+                location: "San Francisco, CA",
+                jobType: "Full-time",
+                description: "We're seeking a creative UI/UX Designer to create intuitive and engaging user experiences. You'll work closely with product and engineering teams...",
+                requirements: ["Figma", "Adobe XD", "Prototyping", "User Research", "4+ years"],
+                status: "active",
+                applications: 156,
+                shortlisted: 28,
+                postedDate: "10 Nov 2025",
+                sources: {
+                    linkedin: 68,
+                    indeed: 42,
+                    company: 28,
+                    referral: 12,
+                    other: 6
+                }
+            },
+            {
+                id: 4,
+                title: "Senior Financial Analyst",
+                department: "Finance",
+                subDepartment: "",
+                location: "Chicago, IL",
+                jobType: "Full-time",
+                description: "Looking for an experienced Financial Analyst to support strategic decision-making through financial modeling, forecasting, and analysis...",
+                requirements: ["Excel", "Financial Modeling", "SQL", "CPA", "5+ years"],
+                status: "active",
+                applications: 98,
+                shortlisted: 15,
+                postedDate: "8 Nov 2025",
+                sources: {
+                    linkedin: 35,
+                    indeed: 28,
+                    company: 20,
+                    referral: 10,
+                    other: 5
+                }
+            },
+            {
+                id: 5,
+                title: "Data Scientist",
+                department: "IT",
+                subDepartment: "Data Science",
+                location: "Remote",
+                jobType: "Full-time",
+                description: "Seeking a Data Scientist to build machine learning models and extract insights from large datasets. Work on cutting-edge AI projects...",
+                requirements: ["Python", "Machine Learning", "TensorFlow", "SQL", "4+ years"],
+                status: "on-hold",
+                applications: 234,
+                shortlisted: 38,
+                postedDate: "5 Nov 2025",
+                sources: {
+                    linkedin: 102,
+                    indeed: 75,
+                    company: 35,
+                    referral: 18,
+                    other: 4
+                }
+            },
+            {
+                id: 6,
+                title: "HR Business Partner",
+                department: "HR",
+                subDepartment: "",
+                location: "Boston, MA",
+                jobType: "Full-time",
+                description: "Join our HR team as a Business Partner. You'll work closely with leadership to develop and implement HR strategies that support business goals...",
+                requirements: ["HR Management", "Employee Relations", "Talent Acquisition", "SHRM", "6+ years"],
+                status: "active",
+                applications: 67,
+                shortlisted: 12,
+                postedDate: "3 Nov 2025",
+                sources: {
+                    linkedin: 25,
+                    indeed: 18,
+                    company: 15,
+                    referral: 7,
+                    other: 2
+                }
+            }
+        ];
+
+        // Load jobs from localStorage or use defaults
+        function loadJobs() {
+            const savedJobs = localStorage.getItem('jobs');
+            if (savedJobs) {
+                jobs = JSON.parse(savedJobs);
+            } else {
+                jobs = defaultJobs;
+                saveJobs();
+            }
+            renderJobs();
+            updateStats();
+        }
+
+        // Save jobs to localStorage
+        function saveJobs() {
+            localStorage.setItem('jobs', JSON.stringify(jobs));
+        }
+
+        // Render all jobs
+        function renderJobs() {
+            const container = document.getElementById('jobsContainer');
+            container.innerHTML = '';
+            
+            if (jobs.length === 0) {
+                container.innerHTML = '<div class="no-jobs"><i class="fas fa-briefcase"></i><p>No jobs posted yet. Click "Post New Job" to get started!</p></div>';
+                return;
+            }
+            
+            jobs.forEach(job => {
+                const jobCard = createJobCard(job);
+                container.appendChild(jobCard);
+            });
+        }
+
+        // Create a job card element
+        function createJobCard(job) {
+            const card = document.createElement('div');
+            card.className = 'job-card';
+            card.setAttribute('data-department', job.department);
+            card.setAttribute('data-status', job.status);
+            
+            const deptDisplay = job.subDepartment ? `${job.department} - ${job.subDepartment}` : job.department;
+            const statusClass = job.status === 'on-hold' ? 'on-hold' : job.status;
+            const statusText = job.status === 'on-hold' ? 'On Hold' : job.status.charAt(0).toUpperCase() + job.status.slice(1);
+            
+            const requirementsHTML = job.requirements.map(req => 
+                `<span class="requirement-tag">${req.trim()}</span>`
+            ).join('');
+            
+            card.innerHTML = `
+                <div class="job-header">
+                    <div class="job-title-section">
+                        <h3>${job.title}</h3>
+                        <div class="job-meta">
+                            <span class="job-department"><i class="fas fa-building"></i> ${deptDisplay}</span>
+                            <span class="job-location"><i class="fas fa-map-marker-alt"></i> ${job.location}</span>
+                            <span class="job-type"><i class="fas fa-clock"></i> ${job.jobType}</span>
+                        </div>
+                    </div>
+                    <div class="job-status-badge ${statusClass}">${statusText}</div>
+                </div>
+                <div class="job-body">
+                    <p class="job-description">${job.description}</p>
+                    <div class="job-requirements">
+                        ${requirementsHTML}
+                    </div>
+                </div>
+                <div class="job-footer">
+                    <div class="job-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span><strong>${job.applications}</strong> Applications</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-star"></i>
+                            <span><strong>${job.shortlisted}</strong> Shortlisted</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Posted: ${job.postedDate}</span>
+                        </div>
+                    </div>
+                    ${job.applications > 0 && job.sources ? `
+                    <div class="job-sources">
+                        <div class="sources-label"><i class="fas fa-tag"></i> Application Sources:</div>
+                        <div class="source-list">
+                            ${job.sources.linkedin > 0 ? `<span class="source-item">
+                                <span class="source-name">LinkedIn:</span>
+                                <span class="source-value">${job.sources.linkedin}</span>
+                            </span>` : ''}
+                            ${job.sources.indeed > 0 ? `<span class="source-item">
+                                <span class="source-name">Indeed:</span>
+                                <span class="source-value">${job.sources.indeed}</span>
+                            </span>` : ''}
+                            ${job.sources.company > 0 ? `<span class="source-item">
+                                <span class="source-name">Company:</span>
+                                <span class="source-value">${job.sources.company}</span>
+                            </span>` : ''}
+                            ${job.sources.referral > 0 ? `<span class="source-item">
+                                <span class="source-name">Referral:</span>
+                                <span class="source-value">${job.sources.referral}</span>
+                            </span>` : ''}
+                            ${job.sources.other > 0 ? `<span class="source-item">
+                                <span class="source-name">Other:</span>
+                                <span class="source-value">${job.sources.other}</span>
+                            </span>` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    <div class="job-actions">
+                        <button class="btn-secondary"><i class="fas fa-eye"></i> View</button>
+                        <button class="btn-secondary"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn-secondary"><i class="fas fa-chart-line"></i> Analytics</button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalJobs = jobs.length;
+            const activeJobs = jobs.filter(j => j.status === 'active').length;
+            const onHoldJobs = jobs.filter(j => j.status === 'on-hold').length;
+            const totalApplications = jobs.reduce((sum, j) => sum + j.applications, 0);
+            
+            document.querySelectorAll('.stat-value')[0].textContent = totalJobs;
+            document.querySelectorAll('.stat-value')[1].textContent = activeJobs;
+            document.querySelectorAll('.stat-value')[2].textContent = onHoldJobs;
+            document.querySelectorAll('.stat-value')[3].textContent = totalApplications.toLocaleString();
+        }
+
+        // Open job modal
+        function openJobModal() {
+            document.getElementById('jobModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close job modal
+        function closeJobModal() {
+            document.getElementById('jobModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('jobForm').reset();
+        }
+
+        // Submit job form
+        function submitJob(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const requirements = formData.get('requirements').split(',').map(r => r.trim()).filter(r => r);
+            
+            const newJob = {
+                id: Date.now(), // Simple ID generation
+                title: formData.get('jobTitle'),
+                department: formData.get('department'),
+                subDepartment: formData.get('subDepartment') || '',
+                location: formData.get('location'),
+                jobType: formData.get('jobType'),
+                description: formData.get('jobDescription'),
+                requirements: requirements,
+                status: formData.get('status'),
+                applications: 0,
+                shortlisted: 0,
+                postedDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                sources: {
+                    linkedin: 0,
+                    indeed: 0,
+                    company: 0,
+                    referral: 0,
+                    other: 0
+                }
+            };
+            
+            jobs.unshift(newJob); // Add to beginning
+            saveJobs();
+            renderJobs();
+            updateStats();
+            closeJobModal();
+            
+            // Show success message
+            showNotification('Job posted successfully!', 'success');
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Search functionality
+        document.getElementById('jobSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const jobCards = document.querySelectorAll('.job-card');
+            
+            jobCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        // Filter functionality
+        document.getElementById('departmentFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('sortFilter').addEventListener('change', applyFilters);
+
+        function applyFilters() {
+            const department = document.getElementById('departmentFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+            const jobCards = Array.from(document.querySelectorAll('.job-card'));
+            
+            // Filter
+            let filtered = jobCards.filter(card => {
+                const cardDept = card.getAttribute('data-department');
+                const cardStatus = card.getAttribute('data-status');
+                
+                let show = true;
+                if (department && cardDept !== department) show = false;
+                if (status && cardStatus !== status) show = false;
+                
+                return show;
+            });
+            
+            // Sort
+            if (sort === 'newest') {
+                filtered.reverse();
+            } else if (sort === 'title') {
+                filtered.sort((a, b) => {
+                    const titleA = a.querySelector('h3').textContent;
+                    const titleB = b.querySelector('h3').textContent;
+                    return titleA.localeCompare(titleB);
+                });
+            }
+            
+            // Hide all, then show filtered
+            jobCards.forEach(card => card.style.display = 'none');
+            filtered.forEach(card => card.style.display = 'block');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('jobModal');
+            if (event.target === modal) {
+                closeJobModal();
+            }
+        }
+
+        // Load jobs on page load
+        document.addEventListener('DOMContentLoaded', loadJobs);
+    </script>
+
+    <script>
+        (function() {
+            var drawer = document.getElementById('sidebarDrawer');
+            var overlay = document.getElementById('drawerOverlay');
+            var toggle = document.getElementById('drawerToggle');
+            var closeBtn = document.getElementById('drawerClose');
+            if (toggle) toggle.addEventListener('click', function() { document.body.classList.add('drawer-open'); });
+            if (closeBtn) closeBtn.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+            if (overlay) overlay.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+        })();
+    </script>
+
+</body>
+</html>

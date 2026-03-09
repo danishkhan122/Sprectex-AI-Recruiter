@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview - AI Recruiter</title>
+
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Drawer overlay (for mobile) -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview" class="active"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+<h1>AI Interview</h1>
+                <p class="subtitle">Conduct AI-powered automated interviews with real-time analysis</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="openScheduleModal()"><i class="fas fa-calendar-plus"></i> Schedule Interview</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="job-stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Interviews</h3>
+                    <p class="stat-value" id="totalInterviews">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Scheduled</h3>
+                    <p class="stat-value" id="scheduledCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Completed</h3>
+                    <p class="stat-value" id="completedCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Avg. Score</h3>
+                    <p class="stat-value" id="avgScore">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Interface -->
+        <div id="interviewInterface" style="display: none;">
+            <div class="interview-container">
+                <!-- Left Panel: Video & Controls -->
+                <div class="interview-left">
+                    <div class="video-container">
+                        <div class="video-wrapper">
+                            <video id="candidateVideo" autoplay playsinline muted></video>
+                            <canvas id="analysisCanvas" style="display: none;"></canvas>
+                            <div class="video-overlay">
+                                <div class="video-status">
+                                    <span class="status-dot"></span>
+                                    <span>Live</span>
+                                </div>
+                                <div class="face-detection-indicator" id="faceIndicator" style="display: none;">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>Face Detected</span>
+                                </div>
+                            </div>
+                            <div class="video-placeholder" id="videoPlaceholder">
+                                <div class="video-icon">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                                <p>Requesting camera access...</p>
+                                <button class="btn-primary" onclick="requestCameraAccess()" id="requestCameraBtn">
+                                    <i class="fas fa-video"></i> Enable Camera
+                                </button>
+                            </div>
+                        </div>
+                        <div class="video-controls">
+                            <button class="control-btn" id="muteBtn" onclick="toggleMute()">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="control-btn" id="videoBtn" onclick="toggleVideo()">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="control-btn end-call" onclick="endInterview()">
+                                <i class="fas fa-phone-slash"></i> End Interview
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Analysis -->
+                    <div class="realtime-analysis">
+                        <h3><i class="fas fa-chart-line"></i> Real-time Analysis</h3>
+                        
+                        <!-- Confidence Analysis -->
+                        <div class="analysis-section-item">
+                            <div class="analysis-header">
+                                <i class="fas fa-smile"></i>
+                                <span>Confidence Level</span>
+                                <span class="analysis-value" id="confidenceValue">0%</span>
+                            </div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="confidenceBar" style="width: 0%"></div>
+                            </div>
+                            <div class="analysis-details" id="confidenceDetails">
+                                <small>Analyzing facial expressions and body language...</small>
+                            </div>
+                        </div>
+
+                        <!-- Emotion Detection -->
+                        <div class="analysis-section-item">
+                            <div class="analysis-header">
+                                <i class="fas fa-heart"></i>
+                                <span>Emotion Detection</span>
+                            </div>
+                            <div class="emotion-grid" id="emotionGrid">
+                                <div class="emotion-item">
+                                    <i class="fas fa-smile"></i>
+                                    <span>Happy</span>
+                                    <div class="emotion-bar">
+                                        <div class="emotion-fill" id="emotionHappy" style="width: 0%"></div>
+                                    </div>
+                                    <span class="emotion-value" id="emotionHappyValue">0%</span>
+                                </div>
+                                <div class="emotion-item">
+                                    <i class="fas fa-meh"></i>
+                                    <span>Neutral</span>
+                                    <div class="emotion-bar">
+                                        <div class="emotion-fill" id="emotionNeutral" style="width: 0%"></div>
+                                    </div>
+                                    <span class="emotion-value" id="emotionNeutralValue">0%</span>
+                                </div>
+                                <div class="emotion-item">
+                                    <i class="fas fa-frown"></i>
+                                    <span>Concerned</span>
+                                    <div class="emotion-bar">
+                                        <div class="emotion-fill" id="emotionConcerned" style="width: 0%"></div>
+                                    </div>
+                                    <span class="emotion-value" id="emotionConcernedValue">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Engagement Level -->
+                        <div class="analysis-section-item">
+                            <div class="analysis-header">
+                                <i class="fas fa-eye"></i>
+                                <span>Engagement</span>
+                                <span class="analysis-value" id="engagementValue">0%</span>
+                            </div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="engagementBar" style="width: 0%"></div>
+                            </div>
+                            <div class="analysis-details" id="engagementDetails">
+                                <small>Tracking eye contact and attention...</small>
+                            </div>
+                        </div>
+
+                        <!-- Clarity & Speech -->
+                        <div class="analysis-section-item">
+                            <div class="analysis-header">
+                                <i class="fas fa-comments"></i>
+                                <span>Speech Clarity</span>
+                                <span class="analysis-value" id="clarityValue">0%</span>
+                            </div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="clarityBar" style="width: 0%"></div>
+                            </div>
+                            <div class="analysis-details" id="clarityDetails">
+                                <small>Analyzing speech patterns and articulation...</small>
+                            </div>
+                        </div>
+
+                        <!-- Body Language -->
+                        <div class="analysis-section-item">
+                            <div class="analysis-header">
+                                <i class="fas fa-user"></i>
+                                <span>Body Language</span>
+                            </div>
+                            <div class="body-language-indicators">
+                                <div class="indicator-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span id="postureStatus">Good Posture</span>
+                                </div>
+                                <div class="indicator-item">
+                                    <i class="fas fa-hand-paper"></i>
+                                    <span id="gestureStatus">Natural Gestures</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Overall Score -->
+                        <div class="analysis-section-item overall-score">
+                            <div class="analysis-header">
+                                <i class="fas fa-star"></i>
+                                <span>Overall Performance</span>
+                                <span class="analysis-value" id="overallPerformanceValue">0%</span>
+                            </div>
+                            <div class="metric-bar large">
+                                <div class="metric-fill" id="overallPerformanceBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Questions & Transcript -->
+                <div class="interview-right">
+                    <!-- Current Question -->
+                    <div class="question-section">
+                        <div class="question-header">
+                            <h3><i class="fas fa-question-circle"></i> Current Question</h3>
+                            <span class="question-number" id="questionNumber">1 / 5</span>
+                        </div>
+                        <div class="question-content">
+                            <p id="currentQuestion">Loading question...</p>
+                            <div class="question-controls">
+                                <button class="btn-icon-small" id="speakQuestionBtn" onclick="speakQuestion()" title="Speak Question">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <button class="btn-icon-small" id="stopSpeakingBtn" onclick="stopSpeaking()" style="display: none;" title="Stop Speaking">
+                                    <i class="fas fa-stop"></i>
+                                </button>
+                            </div>
+                            <div class="question-timer">
+                                <i class="fas fa-clock"></i>
+                                <span id="questionTimer">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Speech Detection Indicator -->
+                    <div class="speech-detection-section">
+                        <div class="speech-indicator" id="speechIndicator" style="display: none;">
+                            <div class="speech-animation">
+                                <div class="sound-wave"></div>
+                                <div class="sound-wave"></div>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <span id="speechStatus">Listening...</span>
+                            <span class="silence-countdown" id="silenceCountdown" style="display: none;">
+                                <i class="fas fa-clock"></i>
+                                <span id="countdownTime">30s</span>
+                            </span>
+                        </div>
+                        <div class="ai-speaking-indicator" id="aiSpeakingIndicator" style="display: none;">
+                            <i class="fas fa-volume-up"></i>
+                            <span>AI is speaking...</span>
+                        </div>
+                        <div class="voice-feedback" id="voiceFeedback" style="display: none;">
+                            <i class="fas fa-comments"></i>
+                            <span id="feedbackText"></span>
+                        </div>
+                    </div>
+
+                    <!-- Interview Transcript -->
+                    <div class="transcript-section">
+                        <div class="transcript-header">
+                            <h3><i class="fas fa-comments"></i> Interview Transcript</h3>
+                            <button class="btn-icon-small" onclick="clearTranscript()"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div class="transcript-content" id="transcriptContent">
+                            <div class="transcript-item ai">
+                                <div class="transcript-avatar">AI</div>
+                                <div class="transcript-text">
+                                    <strong>AI Interviewer:</strong> Welcome! I'm your AI interviewer. Let's begin with the first question.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Progress -->
+                    <div class="progress-section">
+                        <h3><i class="fas fa-tasks"></i> Interview Progress</h3>
+                        <div class="progress-steps" id="progressSteps">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview Actions -->
+            <div class="interview-actions">
+                <button class="btn-secondary" onclick="skipQuestion()">
+                    <i class="fas fa-forward"></i> Skip Question
+                </button>
+                <button class="btn-secondary" onclick="pauseInterview()">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button class="btn-primary" onclick="nextQuestion()">
+                    <i class="fas fa-arrow-right"></i> Next Question
+                </button>
+            </div>
+        </div>
+
+        <!-- Interview Setup -->
+        <div id="interviewSetup" class="interview-setup">
+            <div class="setup-card">
+                <h2><i class="fas fa-cog"></i> Start New Interview</h2>
+                <p>Select a candidate and job position to begin an AI-powered interview</p>
+                
+                <div class="setup-form">
+                    <div class="form-group">
+                        <label for="interviewCandidate"><i class="fas fa-user"></i> Select Candidate *</label>
+                        <select id="interviewCandidate" class="filter-select" required>
+                            <option value="">Choose a candidate...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="interviewJob"><i class="fas fa-briefcase"></i> Select Job Position *</label>
+                        <select id="interviewJob" class="filter-select" required>
+                            <option value="">Choose a job position...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="interviewType"><i class="fas fa-video"></i> Interview Type *</label>
+                        <select id="interviewType" class="filter-select" required>
+                            <option value="video">Video Interview</option>
+                            <option value="audio">Audio Only</option>
+                            <option value="text">Text-Based</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="questionCount"><i class="fas fa-list"></i> Number of Questions</label>
+                        <select id="questionCount" class="filter-select">
+                            <option value="5">5 Questions</option>
+                            <option value="10">10 Questions</option>
+                            <option value="15">15 Questions</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="startInterview()" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-play"></i> Start Interview
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Results (shown after completion) -->
+        <div id="interviewResults" style="display: none;">
+            <div class="results-header">
+                <h2><i class="fas fa-chart-bar"></i> Interview Results</h2>
+                <button class="btn-secondary" onclick="exportResults()"><i class="fas fa-download"></i> Export Report</button>
+            </div>
+
+            <div class="results-content">
+                <!-- Overall Score -->
+                <div class="score-card-large">
+                    <div class="score-circle-large">
+                        <svg class="score-ring" width="180" height="180">
+                            <circle cx="90" cy="90" r="75" stroke="#e2e8f0" stroke-width="10" fill="none"></circle>
+                            <circle id="resultScoreRing" cx="90" cy="90" r="75" stroke="#667eea" stroke-width="10" fill="none" 
+                                    stroke-dasharray="471" stroke-dashoffset="471" transform="rotate(-90 90 90)"></circle>
+                        </svg>
+                        <div class="score-text-large">
+                            <span id="overallScore">0</span>
+                            <small>%</small>
+                        </div>
+                    </div>
+                    <div class="score-info">
+                        <h3 id="resultCandidateName">Candidate Name</h3>
+                        <p id="resultJobTitle">Job Position</p>
+                        <div class="score-breakdown">
+                            <div class="breakdown-item">
+                                <span>Technical Skills</span>
+                                <span id="technicalScore">0%</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Communication</span>
+                                <span id="communicationScore">0%</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Problem Solving</span>
+                                <span id="problemSolvingScore">0%</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Cultural Fit</span>
+                                <span id="culturalFitScore">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Analysis -->
+                <div class="results-analysis">
+                    <div class="analysis-card">
+                        <h3><i class="fas fa-comments"></i> Question Analysis</h3>
+                        <div id="questionAnalysis">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h3><i class="fas fa-lightbulb"></i> AI Feedback</h3>
+                        <div id="aiFeedback">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h3><i class="fas fa-chart-pie"></i> Performance Metrics</h3>
+                        <div class="metrics-grid" id="performanceMetrics">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Actions -->
+            <div class="results-actions">
+                <button class="btn-primary" onclick="shortlistFromInterview()">
+                    <i class="fas fa-star"></i> Shortlist Candidate
+                </button>
+                <button class="btn-secondary" onclick="scheduleFollowUp()">
+                    <i class="fas fa-calendar-plus"></i> Schedule Follow-up
+                </button>
+                <button class="btn-secondary" onclick="viewTranscript()">
+                    <i class="fas fa-file-alt"></i> View Full Transcript
+                </button>
+                <button class="btn-secondary" onclick="startNewInterview()">
+                    <i class="fas fa-redo"></i> Start New Interview
+                </button>
+            </div>
+        </div>
+
+        <!-- Interview History -->
+        <div class="interview-history">
+            <div class="history-header">
+                <h2><i class="fas fa-history"></i> Interview History</h2>
+                <button class="btn-secondary" onclick="clearHistory()"><i class="fas fa-trash"></i> Clear History</button>
+            </div>
+            <div class="history-list" id="interviewHistoryList">
+                <!-- Will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Interview Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-calendar-plus"></i> Schedule Interview</h2>
+                <button class="modal-close" onclick="closeScheduleModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="scheduleForm" onsubmit="submitSchedule(event)">
+                <div class="form-group">
+                    <label for="scheduleCandidate">Candidate *</label>
+                    <select id="scheduleCandidate" name="candidate" required>
+                        <option value="">Select candidate...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleJob">Job Position *</label>
+                    <select id="scheduleJob" name="job" required>
+                        <option value="">Select job position...</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="scheduleDate">Date *</label>
+                        <input type="date" id="scheduleDate" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="scheduleTime">Time *</label>
+                        <input type="time" id="scheduleTime" name="time" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleType">Interview Type *</label>
+                    <select id="scheduleType" name="type" required>
+                        <option value="video">Video Interview</option>
+                        <option value="audio">Audio Only</option>
+                        <option value="text">Text-Based</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeScheduleModal()">Cancel</button>
+                    <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        let interviews = [];
+        let currentInterview = null;
+        let interviewQuestions = [];
+        let currentQuestionIndex = 0;
+        let interviewTimer = null;
+        let questionTimer = null;
+        let questionStartTime = null;
+        let isInterviewActive = false;
+        let videoStream = null;
+        let analysisInterval = null;
+        let currentMetrics = {
+            confidence: 0,
+            engagement: 0,
+            clarity: 0,
+            happy: 0,
+            neutral: 0,
+            concerned: 0,
+            overall: 0
+        };
+        let recognition = null;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let isListening = false;
+        let speechTimeout = null;
+        let silenceTimeout = null;
+        let lastSpeechTime = null;
+        let hasReceivedSpeech = false;
+        let silenceWarningTimeout = null;
+        let countdownInterval = null;
+        let countdownStartTimeout = null;
+
+        // Load data
+        function loadData() {
+            const saved = localStorage.getItem('interviews');
+            if (saved) {
+                interviews = JSON.parse(saved);
+            }
+            loadCandidates();
+            loadJobs();
+            renderHistory();
+            updateStats();
+        }
+
+        // Load candidates
+        function loadCandidates() {
+            const candidates = JSON.parse(localStorage.getItem('candidates') || '[]');
+            const selectors = ['interviewCandidate', 'scheduleCandidate'];
+            
+            selectors.forEach(selectorId => {
+                const selector = document.getElementById(selectorId);
+                selector.innerHTML = '<option value="">Choose a candidate...</option>';
+                
+                if (candidates.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No candidates available';
+                    selector.appendChild(option);
+                    return;
+                }
+                
+                candidates.forEach(candidate => {
+                    const option = document.createElement('option');
+                    option.value = candidate.id;
+                    option.textContent = `${candidate.firstName} ${candidate.lastName}`;
+                    selector.appendChild(option);
+                });
+            });
+        }
+
+        // Load jobs
+        function loadJobs() {
+            const jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+            const selectors = ['interviewJob', 'scheduleJob'];
+            
+            selectors.forEach(selectorId => {
+                const selector = document.getElementById(selectorId);
+                selector.innerHTML = '<option value="">Choose a job position...</option>';
+                
+                if (jobs.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No jobs available';
+                    selector.appendChild(option);
+                    return;
+                }
+                
+                jobs.forEach(job => {
+                    const option = document.createElement('option');
+                    option.value = job.id;
+                    option.textContent = job.title;
+                    selector.appendChild(option);
+                });
+            });
+        }
+
+        // Start interview
+        function startInterview() {
+            const candidateId = document.getElementById('interviewCandidate').value;
+            const jobId = document.getElementById('interviewJob').value;
+            const interviewType = document.getElementById('interviewType').value;
+            const questionCount = parseInt(document.getElementById('questionCount').value);
+
+            if (!candidateId || !jobId) {
+                showNotification('Please select both candidate and job position', 'error');
+                return;
+            }
+
+            const candidates = JSON.parse(localStorage.getItem('candidates') || '[]');
+            const jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+            
+            const candidate = candidates.find(c => c.id == candidateId);
+            const job = jobs.find(j => j.id == jobId);
+
+            if (!candidate || !job) {
+                showNotification('Candidate or job not found', 'error');
+                return;
+            }
+
+            // Generate questions
+            interviewQuestions = generateQuestions(job, questionCount);
+            currentQuestionIndex = 0;
+
+            // Create interview object
+            currentInterview = {
+                id: Date.now(),
+                candidateId: candidateId,
+                candidateName: `${candidate.firstName} ${candidate.lastName}`,
+                jobId: jobId,
+                jobTitle: job.title,
+                type: interviewType,
+                questions: interviewQuestions,
+                startTime: new Date(),
+                status: 'in-progress'
+            };
+
+            // Show interview interface
+            document.getElementById('interviewSetup').style.display = 'none';
+            document.getElementById('interviewInterface').style.display = 'block';
+            document.getElementById('interviewResults').style.display = 'none';
+
+            // Request camera access
+            requestCameraAccess();
+
+            // Initialize speech recognition
+            initializeSpeechRecognition();
+
+            // Start interview
+            isInterviewActive = true;
+            displayQuestion(0);
+            startQuestionTimer();
+            updateProgressSteps();
+            startRealTimeAnalysis();
+            
+            showNotification('Interview started!', 'success');
+        }
+
+        // Initialize Speech Recognition
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    isListening = true;
+                    hasReceivedSpeech = false;
+                    lastSpeechTime = Date.now();
+                    document.getElementById('speechIndicator').style.display = 'flex';
+                    document.getElementById('speechStatus').textContent = 'Listening...';
+                    
+                    // Start silence detection timer
+                    startSilenceTimer();
+                };
+                
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    let hasValidSpeech = false;
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                            // Check if transcript has meaningful content (not just noise)
+                            if (transcript.trim().length > 2) {
+                                hasValidSpeech = true;
+                            }
+                        } else {
+                            interimTranscript += transcript;
+                            if (transcript.trim().length > 2) {
+                                hasValidSpeech = true;
+                            }
+                        }
+                    }
+                    
+                    // Only process if we have valid speech (not silence or noise)
+                    if (hasValidSpeech) {
+                        // Update status when speaking
+                        if (interimTranscript || finalTranscript) {
+                            document.getElementById('speechStatus').textContent = 'Speaking detected...';
+                            document.getElementById('speechIndicator').style.display = 'flex';
+                            
+                            // Reset silence timer when speech is detected
+                            resetSilenceTimer();
+                        }
+                        
+                        // If we have final transcript with meaningful content, process it
+                        if (finalTranscript.trim() && finalTranscript.trim().length > 2) {
+                            const answerText = finalTranscript.trim();
+                            hasReceivedSpeech = true;
+                            lastSpeechTime = Date.now();
+                            
+                            processSpeech(answerText);
+                            addToTranscript('candidate', answerText);
+                            
+                            // Save answer to current question
+                            if (interviewQuestions[currentQuestionIndex]) {
+                                if (interviewQuestions[currentQuestionIndex].answer) {
+                                    interviewQuestions[currentQuestionIndex].answer += ' ' + answerText;
+                                } else {
+                                    interviewQuestions[currentQuestionIndex].answer = answerText;
+                                }
+                            }
+                            
+                            // Give voice feedback only if we have authentic speech
+                            giveVoiceFeedback(answerText);
+                            
+                            // Reset silence timer after processing speech
+                            resetSilenceTimer();
+                        }
+                    }
+                    
+                    // Clear speech timeout
+                    if (speechTimeout) {
+                        clearTimeout(speechTimeout);
+                    }
+                    
+                    // Set timeout to detect when speech stops (short timeout for status update)
+                    speechTimeout = setTimeout(() => {
+                        if (isListening && hasReceivedSpeech) {
+                            document.getElementById('speechStatus').textContent = 'Listening...';
+                        }
+                    }, 2000);
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    if (event.error === 'no-speech') {
+                        // Don't update status for no-speech errors if we haven't received any speech yet
+                        // This prevents false "listening" status when there's just silence
+                        if (hasReceivedSpeech) {
+                            document.getElementById('speechStatus').textContent = 'Waiting for response...';
+                        } else {
+                            document.getElementById('speechStatus').textContent = 'Listening...';
+                        }
+                    } else if (event.error === 'audio-capture') {
+                        showNotification('Microphone not found. Please check your microphone.', 'error');
+                    } else if (event.error === 'network') {
+                        showNotification('Network error. Please check your connection.', 'error');
+                    }
+                };
+                
+                recognition.onend = () => {
+                    isListening = false;
+                    // Restart recognition if interview is active
+                    if (isInterviewActive && recognition) {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            // Recognition already started or error
+                        }
+                    } else {
+                        document.getElementById('speechIndicator').style.display = 'none';
+                    }
+                };
+                
+                // Start recognition
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.log('Speech recognition not available:', e);
+                }
+            } else {
+                showNotification('Speech recognition not supported in this browser.', 'error');
+            }
+        }
+
+        // Process speech
+        function processSpeech(text) {
+            // Update clarity based on speech length and content
+            const words = text.split(' ').length;
+            if (words > 10) {
+                currentMetrics.clarity = Math.min(95, currentMetrics.clarity + 2);
+            }
+            
+            // Update engagement when candidate speaks
+            currentMetrics.engagement = Math.min(95, currentMetrics.engagement + 1);
+            
+            updateAnalysisUI();
+        }
+
+        // Start silence timer (30 seconds)
+        function startSilenceTimer() {
+            // Clear any existing timers
+            if (silenceTimeout) {
+                clearTimeout(silenceTimeout);
+            }
+            if (silenceWarningTimeout) {
+                clearTimeout(silenceWarningTimeout);
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            if (countdownStartTimeout) {
+                clearTimeout(countdownStartTimeout);
+            }
+            
+            const countdownEl = document.getElementById('silenceCountdown');
+            const countdownTimeEl = document.getElementById('countdownTime');
+            const timerStartTime = Date.now();
+            let timeRemaining = 30;
+            
+            // Show countdown after 15 seconds of silence
+            countdownStartTimeout = setTimeout(() => {
+                if (isInterviewActive && !hasReceivedSpeech) {
+                    countdownEl.style.display = 'inline-flex';
+                }
+            }, 15000);
+            
+            // Update countdown every second
+            countdownInterval = setInterval(() => {
+                if (!isInterviewActive) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    return;
+                }
+                
+                // Calculate remaining time based on elapsed time
+                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+                timeRemaining = Math.max(0, 30 - elapsed);
+                
+                // Only show countdown if no speech received
+                if (!hasReceivedSpeech && timeRemaining > 0) {
+                    if (timeRemaining <= 10) {
+                        countdownEl.style.display = 'inline-flex';
+                        countdownTimeEl.textContent = timeRemaining + 's';
+                        countdownTimeEl.style.color = timeRemaining <= 5 ? '#ef4444' : '#f59e0b';
+                    }
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    if (countdownStartTimeout) {
+                        clearTimeout(countdownStartTimeout);
+                        countdownStartTimeout = null;
+                    }
+                }
+            }, 1000);
+            
+            // Warning at 20 seconds
+            silenceWarningTimeout = setTimeout(() => {
+                if (isInterviewActive && !hasReceivedSpeech) {
+                    document.getElementById('speechStatus').textContent = 'Please provide your answer...';
+                    showNotification('Please provide your answer. Moving to next question in 10 seconds.', 'error');
+                }
+            }, 20000); // 20 seconds warning
+            
+            // Auto-advance at 30 seconds
+            silenceTimeout = setTimeout(() => {
+                if (isInterviewActive) {
+                    // Only auto-advance if no speech was received or 30 seconds since last speech
+                    const timeSinceLastSpeech = lastSpeechTime ? (Date.now() - lastSpeechTime) : 30001;
+                    if (!hasReceivedSpeech || timeSinceLastSpeech > 30000) {
+                        countdownEl.style.display = 'none';
+                        showNotification('No response received. Moving to next question.', 'error');
+                        nextQuestion();
+                    }
+                }
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+                if (countdownStartTimeout) {
+                    clearTimeout(countdownStartTimeout);
+                    countdownStartTimeout = null;
+                }
+            }, 30000); // 30 seconds
+        }
+
+        // Reset silence timer
+        function resetSilenceTimer() {
+            // Clear existing timers
+            if (silenceTimeout) {
+                clearTimeout(silenceTimeout);
+            }
+            if (silenceWarningTimeout) {
+                clearTimeout(silenceWarningTimeout);
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            if (countdownStartTimeout) {
+                clearTimeout(countdownStartTimeout);
+                countdownStartTimeout = null;
+            }
+            
+            // Hide countdown
+            document.getElementById('silenceCountdown').style.display = 'none';
+            document.getElementById('countdownTime').textContent = '30s';
+            document.getElementById('countdownTime').style.color = '';
+            
+            // Restart the timer
+            lastSpeechTime = Date.now();
+            startSilenceTimer();
+        }
+
+        // Give voice feedback (only when authentic speech is detected)
+        function giveVoiceFeedback(speechText) {
+            // Validate that we have meaningful speech (not just silence or noise)
+            if (!speechText || speechText.trim().length < 3) {
+                return; // Don't respond to very short or empty speech
+            }
+            
+            // Contextual feedback based on speech length and content
+            let feedbackMessages = [];
+            const wordCount = speechText.split(' ').length;
+            
+            if (wordCount < 5) {
+                feedbackMessages = [
+                    'Okay, I understand.',
+                    'Clear, thank you.',
+                    'Got it.',
+                    'Understood.'
+                ];
+            } else if (wordCount < 15) {
+                feedbackMessages = [
+                    'Okay, clear sound. Thank you.',
+                    'That makes sense. Continue.',
+                    'I see, go on.',
+                    'Good point. Please continue.',
+                    'Understood. Tell me more.'
+                ];
+            } else {
+                feedbackMessages = [
+                    'Excellent explanation. Thank you.',
+                    'That\'s very clear. Good answer.',
+                    'I understand. That\'s helpful.',
+                    'Thank you for that detailed response.',
+                    'Great, I got it. Continue.'
+                ];
+            }
+            
+            // Select random feedback
+            const feedback = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)];
+            
+            // Show visual feedback
+            const feedbackDiv = document.getElementById('voiceFeedback');
+            const feedbackText = document.getElementById('feedbackText');
+            feedbackText.textContent = feedback;
+            feedbackDiv.style.display = 'flex';
+            
+            // Speak feedback (with slight delay to avoid overlap)
+            setTimeout(() => {
+                speakText(feedback, false);
+            }, 300);
+            
+            // Hide after 4 seconds
+            setTimeout(() => {
+                feedbackDiv.style.display = 'none';
+            }, 4000);
+        }
+
+        // Speak question with voice
+        function speakQuestion() {
+            const question = interviewQuestions[currentQuestionIndex];
+            if (question) {
+                speakText(question.text, true);
+            }
+        }
+
+        // Speak text using text-to-speech
+        function speakText(text, isQuestion = false) {
+            // Stop any current speech
+            stopSpeaking();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; // Slightly slower for clarity
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // Use a more natural voice if available
+            const voices = speechSynthesis.getVoices();
+            const preferredVoice = voices.find(voice => 
+                voice.name.includes('Google') || 
+                voice.name.includes('Microsoft') ||
+                voice.name.includes('Samantha') ||
+                voice.name.includes('Karen')
+            );
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+            
+            utterance.onstart = () => {
+                document.getElementById('aiSpeakingIndicator').style.display = 'flex';
+                if (isQuestion) {
+                    document.getElementById('speakQuestionBtn').style.display = 'none';
+                    document.getElementById('stopSpeakingBtn').style.display = 'inline-flex';
+                }
+            };
+            
+            utterance.onend = () => {
+                document.getElementById('aiSpeakingIndicator').style.display = 'none';
+                if (isQuestion) {
+                    document.getElementById('speakQuestionBtn').style.display = 'inline-flex';
+                    document.getElementById('stopSpeakingBtn').style.display = 'none';
+                }
+                currentUtterance = null;
+            };
+            
+            utterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                if (isQuestion) {
+                    document.getElementById('speakQuestionBtn').style.display = 'inline-flex';
+                    document.getElementById('stopSpeakingBtn').style.display = 'none';
+                }
+            };
+            
+            currentUtterance = utterance;
+            speechSynthesis.speak(utterance);
+        }
+
+        // Stop speaking
+        function stopSpeaking() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            currentUtterance = null;
+            document.getElementById('aiSpeakingIndicator').style.display = 'none';
+            document.getElementById('speakQuestionBtn').style.display = 'inline-flex';
+            document.getElementById('stopSpeakingBtn').style.display = 'none';
+        }
+
+        // Load voices (needed for some browsers)
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => {
+                // Voices loaded
+            };
+        }
+
+        // Request camera access
+        async function requestCameraAccess() {
+            try {
+                const video = document.getElementById('candidateVideo');
+                const placeholder = document.getElementById('videoPlaceholder');
+                const requestBtn = document.getElementById('requestCameraBtn');
+                
+                // Request front-facing camera
+                const constraints = {
+                    video: {
+                        facingMode: 'user', // Front camera
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: true
+                };
+
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = videoStream;
+                
+                // Hide placeholder and show video
+                placeholder.style.display = 'none';
+                video.style.display = 'block';
+                
+                // Show face detection indicator
+                document.getElementById('faceIndicator').style.display = 'flex';
+                
+                showNotification('Camera access granted!', 'success');
+                
+                // Start face detection and analysis
+                startFaceAnalysis();
+                
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                showNotification('Camera access denied. Please enable camera permissions.', 'error');
+                document.getElementById('requestCameraBtn').style.display = 'block';
+            }
+        }
+
+        // Start face analysis
+        function startFaceAnalysis() {
+            const video = document.getElementById('candidateVideo');
+            const canvas = document.getElementById('analysisCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size to match video
+            video.addEventListener('loadedmetadata', () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            });
+
+            // Analyze video frames
+            analysisInterval = setInterval(() => {
+                if (video.readyState === video.HAVE_ENOUGH_DATA && isInterviewActive) {
+                    // Draw current frame to canvas
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // Simulate face detection and analysis
+                    // In a real implementation, you would use a face detection library like face-api.js or TensorFlow.js
+                    analyzeFrame();
+                }
+            }, 100); // Analyze every 100ms
+        }
+
+        // Analyze video frame (simulated analysis)
+        function analyzeFrame() {
+            // Simulate real-time analysis with realistic variations
+            // In production, this would use actual ML models for face detection and emotion recognition
+            
+            // Confidence: Based on facial expressions, eye contact, posture
+            currentMetrics.confidence = Math.max(60, Math.min(95, 
+                currentMetrics.confidence + (Math.random() - 0.5) * 5
+            ));
+            
+            // Engagement: Eye contact, attention, responsiveness
+            currentMetrics.engagement = Math.max(65, Math.min(92, 
+                currentMetrics.engagement + (Math.random() - 0.5) * 4
+            ));
+            
+            // Clarity: Speech patterns (simulated)
+            currentMetrics.clarity = Math.max(70, Math.min(90, 
+                currentMetrics.clarity + (Math.random() - 0.5) * 3
+            ));
+            
+            // Emotions (should sum to ~100%)
+            const totalEmotion = 100;
+            currentMetrics.happy = Math.max(20, Math.min(60, 
+                currentMetrics.happy + (Math.random() - 0.5) * 8
+            ));
+            currentMetrics.neutral = Math.max(30, Math.min(70, 
+                currentMetrics.neutral + (Math.random() - 0.5) * 6
+            ));
+            currentMetrics.concerned = Math.max(5, Math.min(40, 
+                currentMetrics.concerned + (Math.random() - 0.5) * 5
+            ));
+            
+            // Normalize emotions to sum to 100
+            const emotionSum = currentMetrics.happy + currentMetrics.neutral + currentMetrics.concerned;
+            currentMetrics.happy = Math.round((currentMetrics.happy / emotionSum) * 100);
+            currentMetrics.neutral = Math.round((currentMetrics.neutral / emotionSum) * 100);
+            currentMetrics.concerned = Math.round((currentMetrics.concerned / emotionSum) * 100);
+            
+            // Overall performance (weighted average)
+            currentMetrics.overall = Math.round(
+                (currentMetrics.confidence * 0.3) +
+                (currentMetrics.engagement * 0.3) +
+                (currentMetrics.clarity * 0.2) +
+                (currentMetrics.happy * 0.2)
+            );
+            
+            // Update UI
+            updateAnalysisUI();
+        }
+
+        // Update analysis UI
+        function updateAnalysisUI() {
+            // Update confidence
+            document.getElementById('confidenceBar').style.width = currentMetrics.confidence + '%';
+            document.getElementById('confidenceValue').textContent = Math.round(currentMetrics.confidence) + '%';
+            updateConfidenceDetails(currentMetrics.confidence);
+            
+            // Update engagement
+            document.getElementById('engagementBar').style.width = currentMetrics.engagement + '%';
+            document.getElementById('engagementValue').textContent = Math.round(currentMetrics.engagement) + '%';
+            updateEngagementDetails(currentMetrics.engagement);
+            
+            // Update clarity
+            document.getElementById('clarityBar').style.width = currentMetrics.clarity + '%';
+            document.getElementById('clarityValue').textContent = Math.round(currentMetrics.clarity) + '%';
+            updateClarityDetails(currentMetrics.clarity);
+            
+            // Update emotions
+            document.getElementById('emotionHappy').style.width = currentMetrics.happy + '%';
+            document.getElementById('emotionHappyValue').textContent = currentMetrics.happy + '%';
+            
+            document.getElementById('emotionNeutral').style.width = currentMetrics.neutral + '%';
+            document.getElementById('emotionNeutralValue').textContent = currentMetrics.neutral + '%';
+            
+            document.getElementById('emotionConcerned').style.width = currentMetrics.concerned + '%';
+            document.getElementById('emotionConcernedValue').textContent = currentMetrics.concerned + '%';
+            
+            // Update overall performance
+            document.getElementById('overallPerformanceBar').style.width = currentMetrics.overall + '%';
+            document.getElementById('overallPerformanceValue').textContent = Math.round(currentMetrics.overall) + '%';
+            
+            // Update body language indicators
+            updateBodyLanguage();
+        }
+
+        // Update confidence details
+        function updateConfidenceDetails(confidence) {
+            const details = document.getElementById('confidenceDetails');
+            let message = '';
+            if (confidence >= 85) {
+                message = 'High confidence detected. Strong presence and composure.';
+            } else if (confidence >= 70) {
+                message = 'Good confidence level. Maintaining professional demeanor.';
+            } else if (confidence >= 60) {
+                message = 'Moderate confidence. Some nervousness detected.';
+            } else {
+                message = 'Low confidence detected. Consider providing reassurance.';
+            }
+            details.innerHTML = `<small>${message}</small>`;
+        }
+
+        // Update engagement details
+        function updateEngagementDetails(engagement) {
+            const details = document.getElementById('engagementDetails');
+            let message = '';
+            if (engagement >= 85) {
+                message = 'Excellent engagement. Strong eye contact and attention.';
+            } else if (engagement >= 70) {
+                message = 'Good engagement. Candidate is attentive.';
+            } else if (engagement >= 60) {
+                message = 'Moderate engagement. Some distraction detected.';
+            } else {
+                message = 'Low engagement. Candidate may be disengaged.';
+            }
+            details.innerHTML = `<small>${message}</small>`;
+        }
+
+        // Update clarity details
+        function updateClarityDetails(clarity) {
+            const details = document.getElementById('clarityDetails');
+            let message = '';
+            if (clarity >= 85) {
+                message = 'Excellent speech clarity. Clear articulation and pace.';
+            } else if (clarity >= 70) {
+                message = 'Good speech clarity. Generally clear communication.';
+            } else if (clarity >= 60) {
+                message = 'Moderate clarity. Some unclear speech detected.';
+            } else {
+                message = 'Low clarity. Speech may be difficult to understand.';
+            }
+            details.innerHTML = `<small>${message}</small>`;
+        }
+
+        // Update body language
+        function updateBodyLanguage() {
+            const confidence = currentMetrics.confidence;
+            const engagement = currentMetrics.engagement;
+            
+            // Posture status
+            const postureStatus = document.getElementById('postureStatus');
+            if (confidence >= 75) {
+                postureStatus.textContent = 'Excellent Posture';
+                postureStatus.parentElement.querySelector('i').className = 'fas fa-check-circle';
+                postureStatus.parentElement.querySelector('i').style.color = '#10b981';
+            } else if (confidence >= 65) {
+                postureStatus.textContent = 'Good Posture';
+                postureStatus.parentElement.querySelector('i').className = 'fas fa-check-circle';
+                postureStatus.parentElement.querySelector('i').style.color = '#f59e0b';
+            } else {
+                postureStatus.textContent = 'Needs Improvement';
+                postureStatus.parentElement.querySelector('i').className = 'fas fa-exclamation-circle';
+                postureStatus.parentElement.querySelector('i').style.color = '#ef4444';
+            }
+            
+            // Gesture status
+            const gestureStatus = document.getElementById('gestureStatus');
+            if (engagement >= 75) {
+                gestureStatus.textContent = 'Natural Gestures';
+                gestureStatus.parentElement.querySelector('i').className = 'fas fa-hand-paper';
+                gestureStatus.parentElement.querySelector('i').style.color = '#10b981';
+            } else if (engagement >= 65) {
+                gestureStatus.textContent = 'Some Gestures';
+                gestureStatus.parentElement.querySelector('i').className = 'fas fa-hand-paper';
+                gestureStatus.parentElement.querySelector('i').style.color = '#f59e0b';
+            } else {
+                gestureStatus.textContent = 'Limited Gestures';
+                gestureStatus.parentElement.querySelector('i').className = 'fas fa-hand-paper';
+                gestureStatus.parentElement.querySelector('i').style.color = '#ef4444';
+            }
+        }
+
+        // Start real-time analysis
+        function startRealTimeAnalysis() {
+            // Initialize metrics with starting values
+            currentMetrics = {
+                confidence: 70 + Math.random() * 15,
+                engagement: 75 + Math.random() * 10,
+                clarity: 72 + Math.random() * 12,
+                happy: 40 + Math.random() * 20,
+                neutral: 45 + Math.random() * 15,
+                concerned: 10 + Math.random() * 10,
+                overall: 0
+            };
+            
+            // Normalize emotions
+            const emotionSum = currentMetrics.happy + currentMetrics.neutral + currentMetrics.concerned;
+            currentMetrics.happy = (currentMetrics.happy / emotionSum) * 100;
+            currentMetrics.neutral = (currentMetrics.neutral / emotionSum) * 100;
+            currentMetrics.concerned = (currentMetrics.concerned / emotionSum) * 100;
+            
+            // Update UI immediately
+            updateAnalysisUI();
+        }
+
+        // Generate questions
+        function generateQuestions(job, count) {
+            const baseQuestions = [
+                `Tell me about yourself and your experience with ${job.title}.`,
+                `What interests you most about this ${job.title} position?`,
+                `Can you describe a challenging project you've worked on?`,
+                `How do you stay updated with industry trends?`,
+                `What are your strengths and weaknesses?`,
+                `Describe a time when you had to work under pressure.`,
+                `How do you handle conflicts in a team?`,
+                `What are your career goals for the next 5 years?`,
+                `Why should we hire you for this position?`,
+                `Do you have any questions for us?`
+            ];
+
+            const questions = [];
+            for (let i = 0; i < count && i < baseQuestions.length; i++) {
+                questions.push({
+                    id: i + 1,
+                    text: baseQuestions[i],
+                    answer: '',
+                    score: 0
+                });
+            }
+            return questions;
+        }
+
+        // Display question
+        function displayQuestion(index) {
+            if (index >= interviewQuestions.length) {
+                endInterview();
+                return;
+            }
+
+            currentQuestionIndex = index;
+            const question = interviewQuestions[index];
+            
+            // Reset speech tracking for new question
+            hasReceivedSpeech = false;
+            lastSpeechTime = null;
+            
+            document.getElementById('currentQuestion').textContent = question.text;
+            document.getElementById('questionNumber').textContent = `${index + 1} / ${interviewQuestions.length}`;
+            
+            // Add to transcript
+            addToTranscript('ai', question.text);
+            
+            // Automatically speak the question
+            setTimeout(() => {
+                speakQuestion();
+            }, 500);
+            
+            questionStartTime = Date.now();
+            resetQuestionTimer();
+            
+            // Start silence timer for this question
+            if (isInterviewActive) {
+                startSilenceTimer();
+            }
+        }
+
+        // Add to transcript
+        function addToTranscript(speaker, text) {
+            const transcript = document.getElementById('transcriptContent');
+            const item = document.createElement('div');
+            item.className = `transcript-item ${speaker}`;
+            
+            const avatar = speaker === 'ai' ? 'AI' : 'C';
+            item.innerHTML = `
+                <div class="transcript-avatar">${avatar}</div>
+                <div class="transcript-text">
+                    <strong>${speaker === 'ai' ? 'AI Interviewer' : 'Candidate'}:</strong> ${text}
+                </div>
+            `;
+            transcript.appendChild(item);
+            transcript.scrollTop = transcript.scrollHeight;
+        }
+
+        // Start question timer
+        function startQuestionTimer() {
+            questionTimer = setInterval(() => {
+                if (questionStartTime) {
+                    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('questionTimer').textContent = 
+                        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // Reset question timer
+        function resetQuestionTimer() {
+            document.getElementById('questionTimer').textContent = '00:00';
+        }
+
+        // Next question
+        function nextQuestion() {
+            // Clear silence timers
+            if (silenceTimeout) {
+                clearTimeout(silenceTimeout);
+            }
+            if (silenceWarningTimeout) {
+                clearTimeout(silenceWarningTimeout);
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            if (countdownStartTimeout) {
+                clearTimeout(countdownStartTimeout);
+                countdownStartTimeout = null;
+            }
+            document.getElementById('silenceCountdown').style.display = 'none';
+            
+            if (currentQuestionIndex < interviewQuestions.length - 1) {
+                // Get the actual answer from transcript if available
+                const currentAnswer = interviewQuestions[currentQuestionIndex].answer;
+                
+                // If no answer was provided, mark it
+                if (!currentAnswer || currentAnswer.trim().length === 0) {
+                    interviewQuestions[currentQuestionIndex].answer = '[No response provided]';
+                    interviewQuestions[currentQuestionIndex].score = 0;
+                } else {
+                    // Score the answer based on metrics
+                    const score = Math.round(
+                        (currentMetrics.confidence * 0.3) +
+                        (currentMetrics.engagement * 0.3) +
+                        (currentMetrics.clarity * 0.2) +
+                        (currentMetrics.overall * 0.2)
+                    );
+                    interviewQuestions[currentQuestionIndex].score = score;
+                }
+                
+                displayQuestion(currentQuestionIndex + 1);
+                updateProgressSteps();
+            } else {
+                endInterview();
+            }
+        }
+
+        // Generate mock answer
+        function generateMockAnswer(question) {
+            const answers = [
+                "That's a great question. Based on my experience...",
+                "I would approach this by...",
+                "In my previous role, I encountered a similar situation where...",
+                "I believe the key to success in this area is...",
+                "Let me share an example from my experience..."
+            ];
+            return answers[Math.floor(Math.random() * answers.length)] + " " + question.toLowerCase();
+        }
+
+        // Update progress steps
+        function updateProgressSteps() {
+            const container = document.getElementById('progressSteps');
+            container.innerHTML = '';
+            
+            interviewQuestions.forEach((q, index) => {
+                const step = document.createElement('div');
+                step.className = `progress-step ${index < currentQuestionIndex ? 'completed' : index === currentQuestionIndex ? 'active' : ''}`;
+                step.innerHTML = `
+                    <div class="step-number">${index + 1}</div>
+                    <div class="step-label">Question ${index + 1}</div>
+                    ${index < currentQuestionIndex ? `<div class="step-score">${q.score}%</div>` : ''}
+                `;
+                container.appendChild(step);
+            });
+        }
+
+
+        // End interview
+        function endInterview() {
+            isInterviewActive = false;
+            clearInterval(questionTimer);
+            
+            // Clear all timers
+            if (silenceTimeout) {
+                clearTimeout(silenceTimeout);
+                silenceTimeout = null;
+            }
+            if (silenceWarningTimeout) {
+                clearTimeout(silenceWarningTimeout);
+                silenceWarningTimeout = null;
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            if (countdownStartTimeout) {
+                clearTimeout(countdownStartTimeout);
+                countdownStartTimeout = null;
+            }
+            if (speechTimeout) {
+                clearTimeout(speechTimeout);
+                speechTimeout = null;
+            }
+            
+            // Stop speech recognition
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {}
+                recognition = null;
+            }
+            
+            // Stop speech synthesis
+            stopSpeaking();
+            
+            // Stop camera stream
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            
+            // Stop analysis
+            if (analysisInterval) {
+                clearInterval(analysisInterval);
+                analysisInterval = null;
+            }
+            
+            // Hide video and show placeholder
+            const video = document.getElementById('candidateVideo');
+            const placeholder = document.getElementById('videoPlaceholder');
+            video.style.display = 'none';
+            placeholder.style.display = 'flex';
+            document.getElementById('faceIndicator').style.display = 'none';
+            document.getElementById('speechIndicator').style.display = 'none';
+            document.getElementById('voiceFeedback').style.display = 'none';
+            
+            if (!currentInterview) return;
+
+            // Calculate overall score
+            const totalScore = interviewQuestions.reduce((sum, q) => sum + q.score, 0);
+            const overallScore = Math.round(totalScore / interviewQuestions.length);
+            
+            // Generate detailed results
+            const results = {
+                overallScore: overallScore,
+                technicalScore: Math.floor(Math.random() * 20) + 75,
+                communicationScore: Math.floor(Math.random() * 20) + 80,
+                problemSolvingScore: Math.floor(Math.random() * 20) + 70,
+                culturalFitScore: Math.floor(Math.random() * 20) + 75,
+                questions: interviewQuestions,
+                feedback: generateFeedback(overallScore),
+                metrics: {
+                    confidence: Math.floor(Math.random() * 20) + 75,
+                    clarity: Math.floor(Math.random() * 20) + 70,
+                    engagement: Math.floor(Math.random() * 20) + 80
+                }
+            };
+
+            currentInterview.results = results;
+            currentInterview.endTime = new Date();
+            currentInterview.status = 'completed';
+            currentInterview.duration = Math.floor((currentInterview.endTime - currentInterview.startTime) / 1000 / 60);
+
+            // Save interview
+            interviews.unshift(currentInterview);
+            if (interviews.length > 50) {
+                interviews = interviews.slice(0, 50);
+            }
+            localStorage.setItem('interviews', JSON.stringify(interviews));
+
+            // Show results
+            displayResults(results);
+            renderHistory();
+            updateStats();
+            
+            showNotification('Interview completed!', 'success');
+        }
+
+        // Display results
+        function displayResults(results) {
+            document.getElementById('interviewInterface').style.display = 'none';
+            document.getElementById('interviewResults').style.display = 'block';
+
+            document.getElementById('overallScore').textContent = results.overallScore;
+            document.getElementById('resultCandidateName').textContent = currentInterview.candidateName;
+            document.getElementById('resultJobTitle').textContent = currentInterview.jobTitle;
+
+            animateScoreRing(results.overallScore);
+
+            document.getElementById('technicalScore').textContent = results.technicalScore + '%';
+            document.getElementById('communicationScore').textContent = results.communicationScore + '%';
+            document.getElementById('problemSolvingScore').textContent = results.problemSolvingScore + '%';
+            document.getElementById('culturalFitScore').textContent = results.culturalFitScore + '%';
+
+            // Question analysis
+            const questionAnalysis = document.getElementById('questionAnalysis');
+            questionAnalysis.innerHTML = results.questions.map((q, index) => `
+                <div class="question-analysis-item">
+                    <div class="qa-header">
+                        <strong>Question ${index + 1}</strong>
+                        <span class="qa-score">${q.score}%</span>
+                    </div>
+                    <p class="qa-question">${q.text}</p>
+                    <p class="qa-answer">${q.answer || 'No answer provided'}</p>
+                </div>
+            `).join('');
+
+            // AI Feedback
+            const feedbackDiv = document.getElementById('aiFeedback');
+            feedbackDiv.innerHTML = results.feedback.map(f => `
+                <div class="feedback-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <p>${f}</p>
+                </div>
+            `).join('');
+
+            // Performance metrics
+            const metricsDiv = document.getElementById('performanceMetrics');
+            metricsDiv.innerHTML = `
+                <div class="metric-box">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <strong>Confidence</strong>
+                        <p>${results.metrics.confidence}%</p>
+                    </div>
+                </div>
+                <div class="metric-box">
+                    <i class="fas fa-comments"></i>
+                    <div>
+                        <strong>Clarity</strong>
+                        <p>${results.metrics.clarity}%</p>
+                    </div>
+                </div>
+                <div class="metric-box">
+                    <i class="fas fa-heart"></i>
+                    <div>
+                        <strong>Engagement</strong>
+                        <p>${results.metrics.engagement}%</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate feedback
+        function generateFeedback(score) {
+            const feedback = [];
+            if (score >= 80) {
+                feedback.push('Excellent performance! Strong candidate for the position.');
+                feedback.push('Demonstrated clear understanding of the role requirements.');
+                feedback.push('Communication skills are outstanding.');
+            } else if (score >= 70) {
+                feedback.push('Good performance with room for improvement.');
+                feedback.push('Shows potential but needs more experience.');
+                feedback.push('Consider a follow-up interview to explore further.');
+            } else {
+                feedback.push('Performance needs improvement.');
+                feedback.push('May not be the best fit for this position.');
+                feedback.push('Consider additional training or experience.');
+            }
+            return feedback;
+        }
+
+        // Animate score ring
+        function animateScoreRing(score) {
+            const circumference = 2 * Math.PI * 75;
+            const offset = circumference - (score / 100) * circumference;
+            const ring = document.getElementById('resultScoreRing');
+            ring.style.strokeDashoffset = offset;
+            ring.style.transition = 'stroke-dashoffset 1s ease-in-out';
+        }
+
+        // Render history
+        function renderHistory() {
+            const container = document.getElementById('interviewHistoryList');
+            container.innerHTML = '';
+
+            if (interviews.length === 0) {
+                container.innerHTML = '<div class="no-jobs"><i class="fas fa-history"></i><p>No interview history yet.</p></div>';
+                return;
+            }
+
+            interviews.forEach(interview => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                const score = interview.results ? interview.results.overallScore : 'N/A';
+                const scoreClass = score >= 80 ? 'high' : score >= 70 ? 'medium' : 'low';
+                
+                item.innerHTML = `
+                    <div class="history-info">
+                        <div class="history-avatar">
+                            <div class="avatar">${interview.candidateName.split(' ').map(n => n[0]).join('')}</div>
+                            ${interview.results ? `<div class="score-badge ${scoreClass}">${score}%</div>` : ''}
+                        </div>
+                        <div class="history-details">
+                            <h4>${interview.candidateName}</h4>
+                            <p><i class="fas fa-briefcase"></i> ${interview.jobTitle}</p>
+                            <p><i class="fas fa-video"></i> ${interview.type.charAt(0).toUpperCase() + interview.type.slice(1)} Interview</p>
+                            <small><i class="fas fa-clock"></i> ${new Date(interview.startTime).toLocaleString()}</small>
+                            ${interview.duration ? `<small><i class="fas fa-hourglass-half"></i> ${interview.duration} minutes</small>` : ''}
+                        </div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="btn-icon-small" onclick="viewInterview(${interview.id})" title="View Results">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon-small" onclick="deleteInterview(${interview.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // View interview
+        function viewInterview(id) {
+            const interview = interviews.find(i => i.id === id);
+            if (interview && interview.results) {
+                currentInterview = interview;
+                displayResults(interview.results);
+            }
+        }
+
+        // Delete interview
+        function deleteInterview(id) {
+            interviews = interviews.filter(i => i.id !== id);
+            localStorage.setItem('interviews', JSON.stringify(interviews));
+            renderHistory();
+            updateStats();
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('totalInterviews').textContent = interviews.length;
+            const scheduled = interviews.filter(i => i.status === 'scheduled').length;
+            const completed = interviews.filter(i => i.status === 'completed').length;
+            const avgScore = completed > 0 
+                ? Math.round(interviews.filter(i => i.results).reduce((sum, i) => sum + i.results.overallScore, 0) / completed)
+                : 0;
+            
+            document.getElementById('scheduledCount').textContent = scheduled;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('avgScore').textContent = avgScore + '%';
+        }
+
+        // Control functions
+        function toggleMute() {
+            const btn = document.getElementById('muteBtn');
+            if (videoStream) {
+                const audioTracks = videoStream.getAudioTracks();
+                if (audioTracks.length > 0) {
+                    audioTracks[0].enabled = !audioTracks[0].enabled;
+                    btn.classList.toggle('active', !audioTracks[0].enabled);
+                    btn.querySelector('i').classList.toggle('fa-microphone', audioTracks[0].enabled);
+                    btn.querySelector('i').classList.toggle('fa-microphone-slash', !audioTracks[0].enabled);
+                }
+            }
+        }
+
+        function toggleVideo() {
+            const btn = document.getElementById('videoBtn');
+            const video = document.getElementById('candidateVideo');
+            if (videoStream) {
+                const videoTracks = videoStream.getVideoTracks();
+                if (videoTracks.length > 0) {
+                    videoTracks[0].enabled = !videoTracks[0].enabled;
+                    btn.classList.toggle('active', !videoTracks[0].enabled);
+                    btn.querySelector('i').classList.toggle('fa-video', videoTracks[0].enabled);
+                    btn.querySelector('i').classList.toggle('fa-video-slash', !videoTracks[0].enabled);
+                    
+                    if (!videoTracks[0].enabled) {
+                        video.style.opacity = '0.5';
+                    } else {
+                        video.style.opacity = '1';
+                    }
+                }
+            }
+        }
+
+        function skipQuestion() {
+            if (currentQuestionIndex < interviewQuestions.length - 1) {
+                displayQuestion(currentQuestionIndex + 1);
+                updateProgressSteps();
+            }
+        }
+
+        function pauseInterview() {
+            isInterviewActive = !isInterviewActive;
+            showNotification(isInterviewActive ? 'Interview resumed' : 'Interview paused', 'success');
+        }
+
+        function clearTranscript() {
+            if (confirm('Clear transcript?')) {
+                document.getElementById('transcriptContent').innerHTML = '';
+            }
+        }
+
+        // Schedule modal
+        function openScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('scheduleForm').reset();
+        }
+
+        function submitSchedule(event) {
+            event.preventDefault();
+            showNotification('Interview scheduled successfully!', 'success');
+            closeScheduleModal();
+        }
+
+        // Action functions
+        function shortlistFromInterview() {
+            showNotification('Candidate shortlisted!', 'success');
+        }
+
+        function scheduleFollowUp() {
+            showNotification('Follow-up interview scheduled!', 'success');
+        }
+
+        function viewTranscript() {
+            showNotification('Opening full transcript...', 'success');
+        }
+
+        function startNewInterview() {
+            document.getElementById('interviewResults').style.display = 'none';
+            document.getElementById('interviewSetup').style.display = 'block';
+            currentInterview = null;
+        }
+
+        function exportResults() {
+            showNotification('Exporting interview report...', 'success');
+        }
+
+        function clearHistory() {
+            if (confirm('Clear all interview history?')) {
+                interviews = [];
+                localStorage.removeItem('interviews');
+                renderHistory();
+                updateStats();
+                showNotification('History cleared', 'success');
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('scheduleModal');
+            if (event.target === modal) {
+                closeScheduleModal();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+
+    <script>
+        (function() {
+            var overlay = document.getElementById('drawerOverlay');
+            var toggle = document.getElementById('drawerToggle');
+            var closeBtn = document.getElementById('drawerClose');
+            if (toggle) toggle.addEventListener('click', function() { document.body.classList.add('drawer-open'); });
+            if (closeBtn) closeBtn.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+            if (overlay) overlay.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+        })();
+    </script>
+
+</body>
+</html>

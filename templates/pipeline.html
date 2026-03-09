@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talent Pipeline - AI Recruiter</title>
+
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Drawer overlay (for mobile) -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline" class="active"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+<h1>Talent Pipeline</h1>
+                <p class="subtitle">Track candidates through each stage of the recruitment process</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" onclick="openFilterModal()"><i class="fas fa-filter"></i> Filter</button>
+                <button class="btn-primary" onclick="openAddToPipelineModal()"><i class="fas fa-plus"></i> Add Candidate</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipeline Stats -->
+        <div class="pipeline-stats">
+            <div class="pipeline-stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Applied</h3>
+                    <p class="stat-value" id="appliedCount">0</p>
+                </div>
+            </div>
+            <div class="pipeline-stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Screening</h3>
+                    <p class="stat-value" id="screeningCount">0</p>
+                </div>
+            </div>
+            <div class="pipeline-stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Interview</h3>
+                    <p class="stat-value" id="interviewCount">0</p>
+                </div>
+            </div>
+            <div class="pipeline-stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fad961 0%, #f76b1c 100%);">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Offer</h3>
+                    <p class="stat-value" id="offerCount">0</p>
+                </div>
+            </div>
+            <div class="pipeline-stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Hired</h3>
+                    <p class="stat-value" id="hiredCount">0</p>
+                </div>
+            </div>
+            <div class="pipeline-stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Rejected</h3>
+                    <p class="stat-value" id="rejectedCount">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Selector -->
+        <div class="pipeline-job-selector">
+            <label><i class="fas fa-briefcase"></i> Filter by Job:</label>
+            <select id="jobFilter" onchange="filterByJob()">
+                <option value="">All Jobs</option>
+            </select>
+            <button class="btn-secondary" onclick="clearFilters()"><i class="fas fa-times"></i> Clear Filters</button>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="kanban-board" id="kanbanBoard">
+            <!-- Applied Column -->
+            <div class="kanban-column" data-stage="applied">
+                <div class="column-header">
+                    <h3><i class="fas fa-paper-plane"></i> Applied</h3>
+                    <span class="column-count" id="appliedColumnCount">0</span>
+                </div>
+                <div class="column-content" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Cards will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Screening Column -->
+            <div class="kanban-column" data-stage="screening">
+                <div class="column-header">
+                    <h3><i class="fas fa-search"></i> Screening</h3>
+                    <span class="column-count" id="screeningColumnCount">0</span>
+                </div>
+                <div class="column-content" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Cards will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Interview Column -->
+            <div class="kanban-column" data-stage="interview">
+                <div class="column-header">
+                    <h3><i class="fas fa-comments"></i> Interview</h3>
+                    <span class="column-count" id="interviewColumnCount">0</span>
+                </div>
+                <div class="column-content" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Cards will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Offer Column -->
+            <div class="kanban-column" data-stage="offer">
+                <div class="column-header">
+                    <h3><i class="fas fa-hand-holding-usd"></i> Offer</h3>
+                    <span class="column-count" id="offerColumnCount">0</span>
+                </div>
+                <div class="column-content" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Cards will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Hired Column -->
+            <div class="kanban-column" data-stage="hired">
+                <div class="column-header">
+                    <h3><i class="fas fa-check-circle"></i> Hired</h3>
+                    <span class="column-count" id="hiredColumnCount">0</span>
+                </div>
+                <div class="column-content" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Cards will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Rejected Column -->
+            <div class="kanban-column" data-stage="rejected">
+                <div class="column-header">
+                    <h3><i class="fas fa-times-circle"></i> Rejected</h3>
+                    <span class="column-count" id="rejectedColumnCount">0</span>
+                </div>
+                <div class="column-content" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Cards will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Candidate to Pipeline Modal -->
+    <div id="addPipelineModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Add Candidate to Pipeline</h2>
+                <button class="modal-close" onclick="closeAddPipelineModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="addPipelineForm" onsubmit="addCandidateToPipeline(event)">
+                    <div class="form-group">
+                        <label>Candidate Name *</label>
+                        <input type="text" id="pipelineCandidateName" required placeholder="Enter candidate name">
+                    </div>
+                    <div class="form-group">
+                        <label>Job Position *</label>
+                        <select id="pipelineJobPosition" required>
+                            <option value="">Select a job</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Stage *</label>
+                        <select id="pipelineInitialStage" required>
+                            <option value="applied">Applied</option>
+                            <option value="screening">Screening</option>
+                            <option value="interview">Interview</option>
+                            <option value="offer">Offer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="pipelineEmail" placeholder="candidate@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="pipelinePhone" placeholder="+1 234 567 8900">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="pipelineNotes" rows="3" placeholder="Add any notes about this candidate..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeAddPipelineModal()">Cancel</button>
+                        <button type="submit" class="btn-primary">Add to Pipeline</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Candidate Detail Modal -->
+    <div id="candidateDetailModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-user"></i> Candidate Details</h2>
+                <button class="modal-close" onclick="closeCandidateDetailModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="candidateDetailContent">
+                <!-- Content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pipelineData = [];
+        let currentJobFilter = '';
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPipelineData();
+            loadJobs();
+        });
+
+        // Load pipeline data from localStorage
+        function loadPipelineData() {
+            const saved = localStorage.getItem('pipelineData');
+            if (saved) {
+                pipelineData = JSON.parse(saved);
+            } else {
+                // Initialize with sample data
+                pipelineData = [];
+            }
+            renderPipeline();
+        }
+
+        // Save pipeline data
+        function savePipelineData() {
+            localStorage.setItem('pipelineData', JSON.stringify(pipelineData));
+            renderPipeline();
+        }
+
+        // Load jobs for dropdown
+        function loadJobs() {
+            const jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+            const jobSelect = document.getElementById('pipelineJobPosition');
+            const filterSelect = document.getElementById('jobFilter');
+            
+            jobSelect.innerHTML = '<option value="">Select a job</option>';
+            filterSelect.innerHTML = '<option value="">All Jobs</option>';
+            
+            jobs.forEach(job => {
+                const option1 = document.createElement('option');
+                option1.value = job.id;
+                option1.textContent = job.title;
+                jobSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = job.id;
+                option2.textContent = job.title;
+                filterSelect.appendChild(option2);
+            });
+        }
+
+        // Render pipeline board
+        function renderPipeline() {
+            // Clear all columns
+            document.querySelectorAll('.column-content').forEach(col => col.innerHTML = '');
+            
+            // Filter data
+            let filteredData = pipelineData;
+            if (currentJobFilter) {
+                filteredData = pipelineData.filter(item => item.jobId === currentJobFilter);
+            }
+            
+            // Group by stage and render
+            const stages = ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected'];
+            stages.forEach(stage => {
+                const stageCandidates = filteredData.filter(item => item.stage === stage);
+                const column = document.querySelector(`.kanban-column[data-stage="${stage}"] .column-content`);
+                
+                stageCandidates.forEach(candidate => {
+                    const card = createCandidateCard(candidate);
+                    column.appendChild(card);
+                });
+                
+                // Update count
+                document.getElementById(`${stage}ColumnCount`).textContent = stageCandidates.length;
+                document.getElementById(`${stage}Count`).textContent = stageCandidates.length;
+            });
+        }
+
+        // Create candidate card
+        function createCandidateCard(candidate) {
+            const card = document.createElement('div');
+            card.className = 'kanban-card';
+            card.draggable = true;
+            card.ondragstart = (e) => drag(e, candidate.id);
+            card.onclick = () => showCandidateDetails(candidate.id);
+            
+            const matchScore = candidate.matchScore || Math.floor(Math.random() * 30) + 70;
+            const scoreColor = matchScore >= 80 ? '#10b981' : matchScore >= 60 ? '#f59e0b' : '#ef4444';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="candidate-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="candidate-info">
+                        <h4>${candidate.name}</h4>
+                        <p class="candidate-job">${candidate.jobTitle || 'N/A'}</p>
+                    </div>
+                    <div class="match-score" style="background: ${scoreColor}20; color: ${scoreColor};">
+                        ${matchScore}%
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span><i class="fas fa-envelope"></i> ${candidate.email || 'N/A'}</span>
+                        <span><i class="fas fa-phone"></i> ${candidate.phone || 'N/A'}</span>
+                    </div>
+                    ${candidate.notes ? `<p class="card-notes">${candidate.notes.substring(0, 100)}${candidate.notes.length > 100 ? '...' : ''}</p>` : ''}
+                    <div class="card-footer">
+                        <span class="card-date"><i class="fas fa-clock"></i> ${formatDate(candidate.dateAdded)}</span>
+                        <button class="card-action-btn" onclick="event.stopPropagation(); quickAction('${candidate.id}')">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Drag and Drop functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev, candidateId) {
+            ev.dataTransfer.setData("candidateId", candidateId);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const candidateId = ev.dataTransfer.getData("candidateId");
+            const newStage = ev.currentTarget.closest('.kanban-column').dataset.stage;
+            
+            // Update candidate stage
+            const candidate = pipelineData.find(c => c.id === candidateId);
+            if (candidate) {
+                candidate.stage = newStage;
+                candidate.lastUpdated = new Date().toISOString();
+                savePipelineData();
+                showNotification(`Candidate moved to ${newStage} stage`, 'success');
+            }
+        }
+
+        // Add candidate to pipeline
+        function addCandidateToPipeline(event) {
+            event.preventDefault();
+            
+            const candidate = {
+                id: 'pipeline_' + Date.now(),
+                name: document.getElementById('pipelineCandidateName').value,
+                jobId: document.getElementById('pipelineJobPosition').value,
+                jobTitle: document.getElementById('pipelineJobPosition').selectedOptions[0]?.text || '',
+                stage: document.getElementById('pipelineInitialStage').value,
+                email: document.getElementById('pipelineEmail').value,
+                phone: document.getElementById('pipelinePhone').value,
+                notes: document.getElementById('pipelineNotes').value,
+                matchScore: Math.floor(Math.random() * 30) + 70,
+                dateAdded: new Date().toISOString(),
+                lastUpdated: new Date().toISOString()
+            };
+            
+            pipelineData.push(candidate);
+            savePipelineData();
+            closeAddPipelineModal();
+            showNotification('Candidate added to pipeline', 'success');
+        }
+
+        // Show candidate details
+        function showCandidateDetails(candidateId) {
+            const candidate = pipelineData.find(c => c.id === candidateId);
+            if (!candidate) return;
+            
+            const modal = document.getElementById('candidateDetailModal');
+            const content = document.getElementById('candidateDetailContent');
+            
+            content.innerHTML = `
+                <div class="candidate-detail-header">
+                    <div class="detail-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h3>${candidate.name}</h3>
+                        <p>${candidate.jobTitle}</p>
+                        <span class="status-badge ${candidate.stage}">${candidate.stage.charAt(0).toUpperCase() + candidate.stage.slice(1)}</span>
+                    </div>
+                </div>
+                <div class="candidate-detail-body">
+                    <div class="detail-section">
+                        <h4><i class="fas fa-info-circle"></i> Contact Information</h4>
+                        <div class="detail-grid">
+                            <div><strong>Email:</strong> ${candidate.email || 'N/A'}</div>
+                            <div><strong>Phone:</strong> ${candidate.phone || 'N/A'}</div>
+                            <div><strong>Match Score:</strong> <span style="color: #10b981; font-weight: 600;">${candidate.matchScore}%</span></div>
+                            <div><strong>Date Added:</strong> ${formatDate(candidate.dateAdded)}</div>
+                        </div>
+                    </div>
+                    ${candidate.notes ? `
+                    <div class="detail-section">
+                        <h4><i class="fas fa-sticky-note"></i> Notes</h4>
+                        <p>${candidate.notes}</p>
+                    </div>
+                    ` : ''}
+                    <div class="detail-section">
+                        <h4><i class="fas fa-cog"></i> Actions</h4>
+                        <div class="detail-actions">
+                            <button class="btn-primary" onclick="changeStage('${candidate.id}', 'screening')">Move to Screening</button>
+                            <button class="btn-primary" onclick="changeStage('${candidate.id}', 'interview')">Move to Interview</button>
+                            <button class="btn-primary" onclick="changeStage('${candidate.id}', 'offer')">Move to Offer</button>
+                            <button class="btn-success" onclick="changeStage('${candidate.id}', 'hired')">Mark as Hired</button>
+                            <button class="btn-danger" onclick="changeStage('${candidate.id}', 'rejected')">Reject</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // Change candidate stage
+        function changeStage(candidateId, newStage) {
+            const candidate = pipelineData.find(c => c.id === candidateId);
+            if (candidate) {
+                candidate.stage = newStage;
+                candidate.lastUpdated = new Date().toISOString();
+                savePipelineData();
+                closeCandidateDetailModal();
+                showNotification(`Candidate moved to ${newStage}`, 'success');
+            }
+        }
+
+        // Quick action menu
+        function quickAction(candidateId) {
+            // Could implement a dropdown menu here
+            showCandidateDetails(candidateId);
+        }
+
+        // Filter by job
+        function filterByJob() {
+            currentJobFilter = document.getElementById('jobFilter').value;
+            renderPipeline();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            currentJobFilter = '';
+            document.getElementById('jobFilter').value = '';
+            renderPipeline();
+        }
+
+        // Modal functions
+        function openAddPipelineModal() {
+            document.getElementById('addPipelineModal').style.display = 'block';
+        }
+
+        function closeAddPipelineModal() {
+            document.getElementById('addPipelineModal').style.display = 'none';
+            document.getElementById('addPipelineForm').reset();
+        }
+
+        function closeCandidateDetailModal() {
+            document.getElementById('candidateDetailModal').style.display = 'none';
+        }
+
+        function openFilterModal() {
+            // Could implement advanced filtering modal
+            showNotification('Filter options coming soon', 'info');
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple notification - could be enhanced
+            alert(message);
+        }
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+    <script>
+        (function() {
+            var overlay = document.getElementById('drawerOverlay');
+            var toggle = document.getElementById('drawerToggle');
+            var closeBtn = document.getElementById('drawerClose');
+            if (toggle) toggle.addEventListener('click', function() { document.body.classList.add('drawer-open'); });
+            if (closeBtn) closeBtn.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+            if (overlay) overlay.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+        })();
+    </script>
+</body>
+</html>

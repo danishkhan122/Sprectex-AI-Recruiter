@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Recruiter Dashboard</title>
+
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Drawer overlay (for mobile) -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <!-- Animated stars background -->
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="active"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1>Dashboard</h1>
+                <p class="subtitle">Welcome back! Here's what's happening with your recruitment.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" type="button" onclick="openPostJobModal()"><i class="fas fa-plus"></i> Post New Job</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-cards">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Total Candidates</h3>
+                    <p class="kpi-value">1,247</p>
+                    <span class="kpi-change positive"><i class="fas fa-arrow-up"></i> 12% from last month</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Shortlisted</h3>
+                    <p class="kpi-value">342</p>
+                    <span class="kpi-change positive"><i class="fas fa-arrow-up"></i> 8% from last month</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Interviews Scheduled</h3>
+                    <p class="kpi-value">89</p>
+                    <span class="kpi-change positive"><i class="fas fa-arrow-up"></i> 15% from last month</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Open Positions</h3>
+                    <p class="kpi-value">24</p>
+                    <span class="kpi-change negative"><i class="fas fa-arrow-down"></i> 3 from last week</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Metrics -->
+        <div class="secondary-metrics">
+            <div class="metric-card">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <h4>Hired This Month</h4>
+                    <p>18</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <i class="fas fa-clock"></i>
+                <div>
+                    <h4>Avg. Time to Hire</h4>
+                    <p>12 days</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <i class="fas fa-percentage"></i>
+                <div>
+                    <h4>Conversion Rate</h4>
+                    <p>27.4%</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <i class="fas fa-brain"></i>
+                <div>
+                    <h4>AI Accuracy</h4>
+                    <p>94.2%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-funnel-dollar"></i> Recruitment Funnel</h2>
+                    <select class="filter-select">
+                        <option>Last 30 days</option>
+                        <option>Last 7 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                <canvas id="funnelChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-line"></i> Applications Trend</h2>
+                    <select class="filter-select">
+                        <option>Last 30 days</option>
+                        <option>Last 7 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="bottom-row">
+            <!-- Recent Candidates -->
+            <div class="table-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-friends"></i> Recent Candidates</h2>
+                    <a href="/candidates" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>AI Score</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">SK</div>
+                                        <span>Sarah Khan</span>
+                                    </div>
+                                </td>
+                                <td>Python Developer</td>
+                                <td><span class="score-badge high">92%</span></td>
+                                <td><span class="status-badge shortlisted">Shortlisted</span></td>
+                                <td>19-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">AR</div>
+                                        <span>Ali Raza</span>
+                                    </div>
+                                </td>
+                                <td>UI/UX Designer</td>
+                                <td><span class="score-badge medium">78%</span></td>
+                                <td><span class="status-badge interview">Interview Scheduled</span></td>
+                                <td>18-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">MJ</div>
+                                        <span>Maria Johnson</span>
+                                    </div>
+                                </td>
+                                <td>React Developer</td>
+                                <td><span class="score-badge high">88%</span></td>
+                                <td><span class="status-badge shortlisted">Shortlisted</span></td>
+                                <td>17-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">DC</div>
+                                        <span>David Chen</span>
+                                    </div>
+                                </td>
+                                <td>Data Scientist</td>
+                                <td><span class="score-badge high">95%</span></td>
+                                <td><span class="status-badge hired">Hired</span></td>
+                                <td>15-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">ES</div>
+                                        <span>Emily Smith</span>
+                                    </div>
+                                </td>
+                                <td>Product Manager</td>
+                                <td><span class="score-badge medium">75%</span></td>
+                                <td><span class="status-badge pending">Pending Review</span></td>
+                                <td>16-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">JK</div>
+                                        <span>James Wilson</span>
+                                    </div>
+                                </td>
+                                <td>Backend Engineer</td>
+                                <td><span class="score-badge high">91%</span></td>
+                                <td><span class="status-badge shortlisted">Shortlisted</span></td>
+                                <td>14-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">LR</div>
+                                        <span>Lisa Brown</span>
+                                    </div>
+                                </td>
+                                <td>Marketing Manager</td>
+                                <td><span class="score-badge medium">82%</span></td>
+                                <td><span class="status-badge interview">Interview Scheduled</span></td>
+                                <td>13-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">PT</div>
+                                        <span>Priya Sharma</span>
+                                    </div>
+                                </td>
+                                <td>Full Stack Developer</td>
+                                <td><span class="score-badge high">89%</span></td>
+                                <td><span class="status-badge shortlisted">Shortlisted</span></td>
+                                <td>12-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">MN</div>
+                                        <span>Michael Nguyen</span>
+                                    </div>
+                                </td>
+                                <td>DevOps Engineer</td>
+                                <td><span class="score-badge medium">76%</span></td>
+                                <td><span class="status-badge pending">Pending Review</span></td>
+                                <td>11-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">AO</div>
+                                        <span>Amira Hassan</span>
+                                    </div>
+                                </td>
+                                <td>UX Researcher</td>
+                                <td><span class="score-badge high">94%</span></td>
+                                <td><span class="status-badge hired">Hired</span></td>
+                                <td>10-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">RB</div>
+                                        <span>Ryan Brooks</span>
+                                    </div>
+                                </td>
+                                <td>Frontend Developer</td>
+                                <td><span class="score-badge medium">81%</span></td>
+                                <td><span class="status-badge shortlisted">Shortlisted</span></td>
+                                <td>09-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="candidate-info">
+                                        <div class="avatar">YK</div>
+                                        <span>Yuki Tanaka</span>
+                                    </div>
+                                </td>
+                                <td>Data Analyst</td>
+                                <td><span class="score-badge high">87%</span></td>
+                                <td><span class="status-badge interview">Interview Scheduled</span></td>
+                                <td>08-Nov-2025</td>
+                                <td><button class="btn-sm">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Upcoming Interviews -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-calendar-alt"></i> Upcoming Interviews</h2>
+                    </div>
+                    <div class="interview-list">
+                        <div class="interview-item">
+                            <div class="interview-time">
+                                <span class="time">10:00 AM</span>
+                                <span class="date">Today</span>
+                            </div>
+                            <div class="interview-details">
+                                <h4>Sarah Khan</h4>
+                                <p>Python Developer</p>
+                                <span class="interview-type"><i class="fas fa-video"></i> Video Call</span>
+                            </div>
+                            <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="interview-item">
+                            <div class="interview-time">
+                                <span class="time">11:00 AM</span>
+                                <span class="date">Tomorrow</span>
+                            </div>
+                            <div class="interview-details">
+                                <h4>Ali Raza</h4>
+                                <p>UI/UX Designer</p>
+                                <span class="interview-type"><i class="fas fa-video"></i> Video Call</span>
+                            </div>
+                            <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="interview-item">
+                            <div class="interview-time">
+                                <span class="time">02:00 PM</span>
+                                <span class="date">Tomorrow</span>
+                            </div>
+                            <div class="interview-details">
+                                <h4>Maria Johnson</h4>
+                                <p>React Developer</p>
+                                <span class="interview-type"><i class="fas fa-user"></i> In-Person</span>
+                            </div>
+                            <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="info-card insights-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-lightbulb"></i> AI Insights</h2>
+                    </div>
+                    <div class="insights-list">
+                        <div class="insight-item">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <h4>Low Quality Pool</h4>
+                                <p>High-quality candidates are low for "React Developer" position. Consider adjusting requirements.</p>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <i class="fas fa-robot"></i>
+                            <div>
+                                <h4>Auto-Rejected Resumes</h4>
+                                <p>3 resumes rejected automatically by AI due to missing required experience.</p>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <i class="fas fa-trending-up"></i>
+                            <div>
+                                <h4>High Demand Role</h4>
+                                <p>Data Scientist role has 45% more applications this week. Review pipeline capacity.</p>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <i class="fas fa-star"></i>
+                            <div>
+                                <h4>Top Candidate Match</h4>
+                                <p>David Chen scored 95% match for Data Scientist. Recommend immediate interview.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="action-btn" type="button" onclick="openPostJobModal()"><i class="fas fa-plus-circle"></i> Post New Job</button>
+                        <button class="action-btn"><i class="fas fa-upload"></i> Upload Resume</button>
+                        <button class="action-btn"><i class="fas fa-envelope"></i> Send Email</button>
+                        <button class="action-btn"><i class="fas fa-file-export"></i> Export Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post New Job Modal -->
+    <div id="postJobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-briefcase"></i> Post New Job</h2>
+                <button class="modal-close" type="button" onclick="closePostJobModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="postJobForm" onsubmit="submitPostJob(event)">
+                <div class="form-group">
+                    <label for="postJobTitle">Job Title *</label>
+                    <input type="text" id="postJobTitle" required placeholder="e.g., Senior Python Developer">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="postJobDept">Department *</label>
+                        <select id="postJobDept" required>
+                            <option value="">Select Department</option>
+                            <option value="IT">IT</option>
+                            <option value="Finance">Finance</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="postJobType">Job Type *</label>
+                        <select id="postJobType" required>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="postJobLocation">Location *</label>
+                    <input type="text" id="postJobLocation" required placeholder="e.g., Remote, New York, NY">
+                </div>
+                <div class="form-group">
+                    <label for="postJobDesc">Job Description *</label>
+                    <textarea id="postJobDesc" rows="4" required placeholder="Describe the role and responsibilities..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postJobReqs">Skills / Requirements (comma-separated) *</label>
+                    <input type="text" id="postJobReqs" required placeholder="e.g., Python, Django, 5+ years">
+                    <small>Separate each with a comma</small>
+                </div>
+
+                <div class="post-job-boards">
+                    <span class="post-job-boards-label"><i class="fas fa-share-alt"></i> Also publish to job boards</span>
+                    <p class="post-job-boards-desc">Post this job to the selected platforms to reach more candidates.</p>
+                    <div class="post-job-boards-list">
+                        <label class="post-job-board-item">
+                            <input type="checkbox" name="postTo" value="linkedin" checked>
+                            <span class="post-job-board-icon linkedin"><i class="fab fa-linkedin"></i></span>
+                            <span>LinkedIn</span>
+                        </label>
+                        <label class="post-job-board-item">
+                            <input type="checkbox" name="postTo" value="indeed" checked>
+                            <span class="post-job-board-icon indeed"><i class="fas fa-search"></i></span>
+                            <span>Indeed</span>
+                        </label>
+                        <label class="post-job-board-item">
+                            <input type="checkbox" name="postTo" value="glassdoor">
+                            <span class="post-job-board-icon glassdoor"><i class="fas fa-building"></i></span>
+                            <span>Glassdoor</span>
+                        </label>
+                        <label class="post-job-board-item">
+                            <input type="checkbox" name="postTo" value="careerpage">
+                            <span class="post-job-board-icon career"><i class="fas fa-globe"></i></span>
+                            <span>Company career page</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closePostJobModal()">Cancel</button>
+                    <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Post Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Recruitment Funnel Chart
+        const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+        new Chart(funnelCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Applied', 'Shortlisted', 'Interviewed', 'Selected', 'Hired'],
+                datasets: [{
+                    label: 'Candidates',
+                    data: [1247, 342, 89, 45, 18],
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(245, 87, 108, 0.8)',
+                        'rgba(79, 172, 254, 0.8)',
+                        'rgba(67, 233, 123, 0.8)',
+                        'rgba(56, 249, 215, 0.8)'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Applications Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Applications',
+                    data: [280, 320, 290, 357],
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Drawer open/close
+        const drawer = document.getElementById('sidebarDrawer');
+        const overlay = document.getElementById('drawerOverlay');
+        const toggle = document.getElementById('drawerToggle');
+        const closeBtn = document.getElementById('drawerClose');
+
+        function openDrawer() {
+            document.body.classList.add('drawer-open');
+            overlay.setAttribute('aria-hidden', 'false');
+            drawer.setAttribute('aria-hidden', 'false');
+        }
+        function closeDrawer() {
+            document.body.classList.remove('drawer-open');
+            overlay.setAttribute('aria-hidden', 'true');
+            drawer.setAttribute('aria-hidden', 'true');
+        }
+
+        if (toggle) toggle.addEventListener('click', openDrawer);
+        if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+
+        // Post New Job modal
+        function openPostJobModal() {
+            document.getElementById('postJobModal').style.display = 'flex';
+        }
+        function closePostJobModal() {
+            document.getElementById('postJobModal').style.display = 'none';
+        }
+        function submitPostJob(e) {
+            e.preventDefault();
+            var title = document.getElementById('postJobTitle').value;
+            var boards = [];
+            document.querySelectorAll('#postJobForm input[name="postTo"]:checked').forEach(function(cb) {
+                boards.push(cb.value);
+            });
+            closePostJobModal();
+            document.getElementById('postJobForm').reset();
+            document.querySelectorAll('#postJobForm input[name="postTo"]').forEach(function(cb) {
+                if (cb.value === 'linkedin' || cb.value === 'indeed') cb.checked = true;
+            });
+            var msg = 'Job "' + title + '" posted successfully.';
+            if (boards.length) msg += ' Published to: ' + boards.map(function(b) {
+                return b === 'linkedin' ? 'LinkedIn' : b === 'indeed' ? 'Indeed' : b === 'glassdoor' ? 'Glassdoor' : 'Company career page';
+            }).join(', ') + '.';
+            alert(msg);
+        }
+        document.getElementById('postJobModal').addEventListener('click', function(ev) {
+            if (ev.target === this) closePostJobModal();
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidates - AI Recruiter</title>
+
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Drawer overlay (for mobile) -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates" class="active"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1>Candidates</h1>
+                <p class="subtitle">Manage and track all your candidate profiles</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="openAddCandidateModal()"><i class="fas fa-user-plus"></i> Add Candidate</button>
+                <button class="btn-secondary" onclick="openImportModal()"><i class="fas fa-upload"></i> Import Resume</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="job-stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Candidates</h3>
+                    <p class="stat-value" id="totalCandidates">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Shortlisted</h3>
+                    <p class="stat-value" id="shortlistedCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Interview Scheduled</h3>
+                    <p class="stat-value" id="interviewCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Hired</h3>
+                    <p class="stat-value" id="hiredCount">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="filters-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search candidates by name, role, or skills..." id="candidateSearch">
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending Review</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="interview">Interview Scheduled</option>
+                    <option value="hired">Hired</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <select class="filter-select" id="scoreFilter">
+                    <option value="">All Scores</option>
+                    <option value="high">High (80%+)</option>
+                    <option value="medium">Medium (60-79%)</option>
+                    <option value="low">Low (&lt;60%)</option>
+                </select>
+                <select class="filter-select" id="sortFilter">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="score">Highest Score</option>
+                    <option value="name">Name A-Z</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+            <button class="view-btn active" onclick="switchView('grid')" id="gridViewBtn">
+                <i class="fas fa-th"></i> Grid
+            </button>
+            <button class="view-btn" onclick="switchView('list')" id="listViewBtn">
+                <i class="fas fa-list"></i> List
+            </button>
+        </div>
+
+        <!-- Candidates Container -->
+        <div class="candidates-container" id="candidatesContainer">
+            <!-- Candidates will be dynamically loaded here -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i> Previous</button>
+            <div class="page-numbers" id="pageNumbers"></div>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Candidate Detail Modal -->
+    <div id="candidateModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-user"></i> Candidate Details</h2>
+                <button class="modal-close" onclick="closeCandidateModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="candidateModalContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Candidate Modal -->
+    <div id="addCandidateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Add Candidate</h2>
+                <button class="modal-close" onclick="closeAddCandidateModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="addCandidateForm" onsubmit="submitCandidate(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="candidateFirstName">First Name *</label>
+                        <input type="text" id="candidateFirstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="candidateLastName">Last Name *</label>
+                        <input type="text" id="candidateLastName" name="lastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="candidateEmail">Email *</label>
+                        <input type="email" id="candidateEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="candidatePhone">Phone</label>
+                        <input type="tel" id="candidatePhone" name="phone">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="candidateRole">Applied Role *</label>
+                        <input type="text" id="candidateRole" name="role" required placeholder="e.g., Python Developer">
+                    </div>
+                    <div class="form-group">
+                        <label for="candidateExperience">Experience</label>
+                        <input type="text" id="candidateExperience" name="experience" placeholder="e.g., 5 years">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="candidateSkills">Skills (comma-separated)</label>
+                    <input type="text" id="candidateSkills" name="skills" placeholder="e.g., Python, Django, PostgreSQL">
+                </div>
+                
+                <div class="form-group">
+                    <label for="candidateStatus">Status *</label>
+                    <select id="candidateStatus" name="status" required>
+                        <option value="pending">Pending Review</option>
+                        <option value="shortlisted">Shortlisted</option>
+                        <option value="interview">Interview Scheduled</option>
+                        <option value="hired">Hired</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddCandidateModal()">Cancel</button>
+                    <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Add Candidate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize: Load candidates from localStorage or use default candidates
+        let candidates = [];
+        let currentPage = 1;
+        const itemsPerPage = 12;
+        let currentView = 'grid';
+        
+        // Default sample candidates
+        const defaultCandidates = [
+            {
+                id: 1,
+                firstName: "Sarah",
+                lastName: "Khan",
+                email: "sarah.khan@email.com",
+                phone: "+1 234-567-8900",
+                role: "Python Developer",
+                experience: "5 years",
+                skills: ["Python", "Django", "PostgreSQL", "AWS", "REST APIs"],
+                aiScore: 92,
+                status: "shortlisted",
+                appliedDate: "19 Nov 2025",
+                location: "New York, NY",
+                resume: "Available"
+            },
+            {
+                id: 2,
+                firstName: "Ali",
+                lastName: "Raza",
+                email: "ali.raza@email.com",
+                phone: "+1 234-567-8901",
+                role: "UI/UX Designer",
+                experience: "4 years",
+                skills: ["Figma", "Adobe XD", "Prototyping", "User Research"],
+                aiScore: 78,
+                status: "interview",
+                appliedDate: "18 Nov 2025",
+                location: "San Francisco, CA",
+                resume: "Available"
+            },
+            {
+                id: 3,
+                firstName: "Maria",
+                lastName: "Johnson",
+                email: "maria.johnson@email.com",
+                phone: "+1 234-567-8902",
+                role: "React Developer",
+                experience: "3 years",
+                skills: ["React", "TypeScript", "Redux", "CSS3"],
+                aiScore: 88,
+                status: "shortlisted",
+                appliedDate: "17 Nov 2025",
+                location: "Remote",
+                resume: "Available"
+            },
+            {
+                id: 4,
+                firstName: "David",
+                lastName: "Chen",
+                email: "david.chen@email.com",
+                phone: "+1 234-567-8903",
+                role: "Data Scientist",
+                experience: "6 years",
+                skills: ["Python", "Machine Learning", "TensorFlow", "SQL"],
+                aiScore: 95,
+                status: "hired",
+                appliedDate: "15 Nov 2025",
+                location: "Boston, MA",
+                resume: "Available"
+            },
+            {
+                id: 5,
+                firstName: "Emily",
+                lastName: "Smith",
+                email: "emily.smith@email.com",
+                phone: "+1 234-567-8904",
+                role: "Product Manager",
+                experience: "7 years",
+                skills: ["Product Strategy", "Agile", "Analytics", "Leadership"],
+                aiScore: 75,
+                status: "pending",
+                appliedDate: "16 Nov 2025",
+                location: "Chicago, IL",
+                resume: "Available"
+            },
+            {
+                id: 6,
+                firstName: "James",
+                lastName: "Wilson",
+                email: "james.wilson@email.com",
+                phone: "+1 234-567-8905",
+                role: "DevOps Engineer",
+                experience: "5 years",
+                skills: ["Docker", "Kubernetes", "AWS", "CI/CD", "Linux"],
+                aiScore: 85,
+                status: "shortlisted",
+                appliedDate: "14 Nov 2025",
+                location: "Seattle, WA",
+                resume: "Available"
+            },
+            {
+                id: 7,
+                firstName: "Lisa",
+                lastName: "Anderson",
+                email: "lisa.anderson@email.com",
+                phone: "+1 234-567-8906",
+                role: "Frontend Developer",
+                experience: "4 years",
+                skills: ["JavaScript", "Vue.js", "HTML5", "CSS3", "SASS"],
+                aiScore: 82,
+                status: "interview",
+                appliedDate: "13 Nov 2025",
+                location: "Austin, TX",
+                resume: "Available"
+            },
+            {
+                id: 8,
+                firstName: "Michael",
+                lastName: "Brown",
+                email: "michael.brown@email.com",
+                phone: "+1 234-567-8907",
+                role: "Backend Developer",
+                experience: "6 years",
+                skills: ["Node.js", "Express", "MongoDB", "Redis", "Microservices"],
+                aiScore: 90,
+                status: "shortlisted",
+                appliedDate: "12 Nov 2025",
+                location: "Denver, CO",
+                resume: "Available"
+            }
+        ];
+
+        // Load candidates from localStorage or use defaults
+        function loadCandidates() {
+            const savedCandidates = localStorage.getItem('candidates');
+            if (savedCandidates) {
+                candidates = JSON.parse(savedCandidates);
+            } else {
+                candidates = defaultCandidates;
+                saveCandidates();
+            }
+            renderCandidates();
+            updateStats();
+            renderPagination();
+        }
+
+        // Save candidates to localStorage
+        function saveCandidates() {
+            localStorage.setItem('candidates', JSON.stringify(candidates));
+        }
+
+        // Render all candidates
+        function renderCandidates() {
+            const container = document.getElementById('candidatesContainer');
+            container.innerHTML = '';
+            
+            if (candidates.length === 0) {
+                container.innerHTML = '<div class="no-jobs"><i class="fas fa-users"></i><p>No candidates found. Click "Add Candidate" to get started!</p></div>';
+                return;
+            }
+            
+            const filtered = getFilteredCandidates();
+            const paginated = getPaginatedCandidates(filtered);
+            
+            if (paginated.length === 0) {
+                container.innerHTML = '<div class="no-jobs"><i class="fas fa-search"></i><p>No candidates match your filters.</p></div>';
+                return;
+            }
+            
+            paginated.forEach(candidate => {
+                const candidateCard = createCandidateCard(candidate);
+                container.appendChild(candidateCard);
+            });
+        }
+
+        // Get filtered candidates
+        function getFilteredCandidates() {
+            const searchTerm = document.getElementById('candidateSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const scoreFilter = document.getElementById('scoreFilter').value;
+            
+            return candidates.filter(candidate => {
+                const fullName = `${candidate.firstName} ${candidate.lastName}`.toLowerCase();
+                const role = candidate.role.toLowerCase();
+                const skills = candidate.skills.join(' ').toLowerCase();
+                const searchMatch = !searchTerm || fullName.includes(searchTerm) || role.includes(searchTerm) || skills.includes(searchTerm);
+                
+                const statusMatch = !statusFilter || candidate.status === statusFilter;
+                
+                let scoreMatch = true;
+                if (scoreFilter === 'high') scoreMatch = candidate.aiScore >= 80;
+                else if (scoreFilter === 'medium') scoreMatch = candidate.aiScore >= 60 && candidate.aiScore < 80;
+                else if (scoreFilter === 'low') scoreMatch = candidate.aiScore < 60;
+                
+                return searchMatch && statusMatch && scoreMatch;
+            });
+        }
+
+        // Get paginated candidates
+        function getPaginatedCandidates(filtered) {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            return filtered.slice(start, end);
+        }
+
+        // Create a candidate card element
+        function createCandidateCard(candidate) {
+            const card = document.createElement('div');
+            card.className = `candidate-card ${currentView === 'list' ? 'list-view' : ''}`;
+            card.setAttribute('data-status', candidate.status);
+            card.setAttribute('data-score', candidate.aiScore);
+            
+            const fullName = `${candidate.firstName} ${candidate.lastName}`;
+            const initials = `${candidate.firstName[0]}${candidate.lastName[0]}`;
+            const scoreClass = candidate.aiScore >= 80 ? 'high' : candidate.aiScore >= 60 ? 'medium' : 'low';
+            const statusClass = candidate.status;
+            const statusText = {
+                'pending': 'Pending Review',
+                'shortlisted': 'Shortlisted',
+                'interview': 'Interview Scheduled',
+                'hired': 'Hired',
+                'rejected': 'Rejected'
+            }[candidate.status] || candidate.status;
+            
+            const skillsHTML = candidate.skills.slice(0, 4).map(skill => 
+                `<span class="skill-tag">${skill}</span>`
+            ).join('');
+            
+            if (currentView === 'list') {
+                card.innerHTML = `
+                    <div class="candidate-card-list">
+                        <div class="candidate-avatar-section">
+                            <div class="avatar-large">${initials}</div>
+                            <div class="score-badge ${scoreClass}">${candidate.aiScore}%</div>
+                        </div>
+                        <div class="candidate-info-section">
+                            <h3>${fullName}</h3>
+                            <p class="candidate-role"><i class="fas fa-briefcase"></i> ${candidate.role}</p>
+                            <p class="candidate-contact"><i class="fas fa-envelope"></i> ${candidate.email}</p>
+                            <div class="candidate-skills">${skillsHTML}</div>
+                        </div>
+                        <div class="candidate-meta-section">
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${candidate.location || 'Not specified'}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>${candidate.appliedDate}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>${candidate.experience}</span>
+                            </div>
+                        </div>
+                        <div class="candidate-status-section">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                            <div class="candidate-actions">
+                                <button class="btn-icon-small" onclick="viewCandidate(${candidate.id})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon-small" onclick="contactCandidate(${candidate.id})" title="Contact">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                                <button class="btn-icon-small" onclick="scheduleInterview(${candidate.id})" title="Schedule Interview">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="candidate-card-header">
+                        <div class="candidate-avatar-section">
+                            <div class="avatar-large">${initials}</div>
+                            <div class="score-badge ${scoreClass}">${candidate.aiScore}%</div>
+                        </div>
+                        <div class="candidate-header-info">
+                            <h3>${fullName}</h3>
+                            <p class="candidate-role"><i class="fas fa-briefcase"></i> ${candidate.role}</p>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="candidate-card-body">
+                        <div class="candidate-contact-info">
+                            <p><i class="fas fa-envelope"></i> ${candidate.email}</p>
+                            <p><i class="fas fa-phone"></i> ${candidate.phone || 'Not provided'}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> ${candidate.location || 'Not specified'}</p>
+                        </div>
+                        <div class="candidate-skills">
+                            ${skillsHTML}
+                            ${candidate.skills.length > 4 ? `<span class="skill-tag more">+${candidate.skills.length - 4} more</span>` : ''}
+                        </div>
+                        <div class="candidate-meta">
+                            <span><i class="fas fa-clock"></i> ${candidate.experience}</span>
+                            <span><i class="fas fa-calendar"></i> ${candidate.appliedDate}</span>
+                        </div>
+                    </div>
+                    <div class="candidate-card-footer">
+                        <button class="btn-secondary" onclick="viewCandidate(${candidate.id})">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                        <button class="btn-secondary" onclick="contactCandidate(${candidate.id})">
+                            <i class="fas fa-envelope"></i> Contact
+                        </button>
+                        <button class="btn-icon-small" onclick="scheduleInterview(${candidate.id})" title="Schedule Interview">
+                            <i class="fas fa-calendar-plus"></i>
+                        </button>
+                    </div>
+                `;
+            }
+            
+            return card;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = candidates.length;
+            const shortlisted = candidates.filter(c => c.status === 'shortlisted').length;
+            const interview = candidates.filter(c => c.status === 'interview').length;
+            const hired = candidates.filter(c => c.status === 'hired').length;
+            
+            document.getElementById('totalCandidates').textContent = total;
+            document.getElementById('shortlistedCount').textContent = shortlisted;
+            document.getElementById('interviewCount').textContent = interview;
+            document.getElementById('hiredCount').textContent = hired;
+        }
+
+        // View candidate details
+        function viewCandidate(id) {
+            const candidate = candidates.find(c => c.id === id);
+            if (!candidate) return;
+            
+            const modal = document.getElementById('candidateModal');
+            const content = document.getElementById('candidateModalContent');
+            const fullName = `${candidate.firstName} ${candidate.lastName}`;
+            const initials = `${candidate.firstName[0]}${candidate.lastName[0]}`;
+            const scoreClass = candidate.aiScore >= 80 ? 'high' : candidate.aiScore >= 60 ? 'medium' : 'low';
+            const statusText = {
+                'pending': 'Pending Review',
+                'shortlisted': 'Shortlisted',
+                'interview': 'Interview Scheduled',
+                'hired': 'Hired',
+                'rejected': 'Rejected'
+            }[candidate.status] || candidate.status;
+            
+            const skillsHTML = candidate.skills.map(skill => 
+                `<span class="skill-tag">${skill}</span>`
+            ).join('');
+            
+            content.innerHTML = `
+                <div class="candidate-detail-content">
+                    <div class="candidate-detail-header">
+                        <div class="candidate-detail-avatar">
+                            <div class="avatar-extra-large">${initials}</div>
+                            <div class="score-badge-large ${scoreClass}">${candidate.aiScore}% Match</div>
+                        </div>
+                        <div class="candidate-detail-info">
+                            <h2>${fullName}</h2>
+                            <p class="detail-role"><i class="fas fa-briefcase"></i> ${candidate.role}</p>
+                            <span class="status-badge ${candidate.status}">${statusText}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="candidate-detail-body">
+                        <div class="detail-section">
+                            <h3><i class="fas fa-info-circle"></i> Contact Information</h3>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <div>
+                                        <label>Email</label>
+                                        <p>${candidate.email}</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-phone"></i>
+                                    <div>
+                                        <label>Phone</label>
+                                        <p>${candidate.phone || 'Not provided'}</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div>
+                                        <label>Location</label>
+                                        <p>${candidate.location || 'Not specified'}</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <div>
+                                        <label>Applied Date</label>
+                                        <p>${candidate.appliedDate}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3><i class="fas fa-code"></i> Skills & Experience</h3>
+                            <div class="skills-container">
+                                ${skillsHTML}
+                            </div>
+                            <p class="experience-text"><i class="fas fa-clock"></i> Experience: ${candidate.experience}</p>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3><i class="fas fa-file-alt"></i> Resume</h3>
+                            <p>${candidate.resume || 'Resume not uploaded'}</p>
+                            <button class="btn-secondary"><i class="fas fa-download"></i> Download Resume</button>
+                        </div>
+                    </div>
+                    
+                    <div class="candidate-detail-actions">
+                        <button class="btn-primary" onclick="contactCandidate(${candidate.id})">
+                            <i class="fas fa-envelope"></i> Contact Candidate
+                        </button>
+                        <button class="btn-secondary" onclick="scheduleInterview(${candidate.id})">
+                            <i class="fas fa-calendar-plus"></i> Schedule Interview
+                        </button>
+                        <button class="btn-secondary" onclick="updateCandidateStatus(${candidate.id})">
+                            <i class="fas fa-edit"></i> Update Status
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close candidate modal
+        function closeCandidateModal() {
+            document.getElementById('candidateModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Open add candidate modal
+        function openAddCandidateModal() {
+            document.getElementById('addCandidateModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close add candidate modal
+        function closeAddCandidateModal() {
+            document.getElementById('addCandidateModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('addCandidateForm').reset();
+        }
+
+        // Submit candidate form
+        function submitCandidate(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const skills = formData.get('skills') ? formData.get('skills').split(',').map(s => s.trim()).filter(s => s) : [];
+            
+            // Generate AI score (random for demo, in real app this would be calculated)
+            const aiScore = Math.floor(Math.random() * 30) + 70; // 70-100
+            
+            const newCandidate = {
+                id: Date.now(),
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                phone: formData.get('phone') || '',
+                role: formData.get('role'),
+                experience: formData.get('experience') || 'Not specified',
+                skills: skills,
+                aiScore: aiScore,
+                status: formData.get('status'),
+                appliedDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                location: 'Not specified',
+                resume: 'Available'
+            };
+            
+            candidates.unshift(newCandidate);
+            saveCandidates();
+            renderCandidates();
+            updateStats();
+            renderPagination();
+            closeAddCandidateModal();
+            showNotification('Candidate added successfully!', 'success');
+        }
+
+        // Contact candidate
+        function contactCandidate(id) {
+            const candidate = candidates.find(c => c.id === id);
+            if (candidate) {
+                showNotification(`Opening email client for ${candidate.firstName} ${candidate.lastName}...`, 'success');
+                // In real app, this would open email client or send email
+            }
+        }
+
+        // Schedule interview
+        function scheduleInterview(id) {
+            const candidate = candidates.find(c => c.id === id);
+            if (candidate) {
+                showNotification(`Scheduling interview for ${candidate.firstName} ${candidate.lastName}...`, 'success');
+                // In real app, this would open calendar/scheduling modal
+            }
+        }
+
+        // Switch view (grid/list)
+        function switchView(view) {
+            currentView = view;
+            document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+            document.getElementById('listViewBtn').classList.toggle('active', view === 'list');
+            renderCandidates();
+        }
+
+        // Render pagination
+        function renderPagination() {
+            const filtered = getFilteredCandidates();
+            const totalPages = Math.ceil(filtered.length / itemsPerPage);
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+            
+            if (totalPages <= 1) {
+                document.getElementById('prevBtn').disabled = true;
+                document.getElementById('nextBtn').disabled = true;
+                return;
+            }
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    const btn = document.createElement('button');
+                    btn.className = 'page-number';
+                    if (i === currentPage) btn.classList.add('active');
+                    btn.textContent = i;
+                    btn.onclick = () => {
+                        currentPage = i;
+                        renderCandidates();
+                        renderPagination();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
+                    pageNumbers.appendChild(btn);
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '...';
+                    pageNumbers.appendChild(ellipsis);
+                }
+            }
+        }
+
+        // Change page
+        function changePage(direction) {
+            const filtered = getFilteredCandidates();
+            const totalPages = Math.ceil(filtered.length / itemsPerPage);
+            const newPage = currentPage + direction;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderCandidates();
+                renderPagination();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Event listeners
+        document.getElementById('candidateSearch').addEventListener('input', () => {
+            currentPage = 1;
+            renderCandidates();
+            renderPagination();
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            currentPage = 1;
+            renderCandidates();
+            renderPagination();
+        });
+
+        document.getElementById('scoreFilter').addEventListener('change', () => {
+            currentPage = 1;
+            renderCandidates();
+            renderPagination();
+        });
+
+        document.getElementById('sortFilter').addEventListener('change', (e) => {
+            const sort = e.target.value;
+            if (sort === 'score') {
+                candidates.sort((a, b) => b.aiScore - a.aiScore);
+            } else if (sort === 'name') {
+                candidates.sort((a, b) => {
+                    const nameA = `${a.firstName} ${a.lastName}`;
+                    const nameB = `${b.firstName} ${b.lastName}`;
+                    return nameA.localeCompare(nameB);
+                });
+            } else if (sort === 'newest') {
+                candidates.sort((a, b) => b.id - a.id);
+            } else if (sort === 'oldest') {
+                candidates.sort((a, b) => a.id - b.id);
+            }
+            saveCandidates();
+            renderCandidates();
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = ['candidateModal', 'addCandidateModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    if (modalId === 'candidateModal') closeCandidateModal();
+                    else if (modalId === 'addCandidateModal') closeAddCandidateModal();
+                }
+            });
+        }
+
+        // Import modal placeholder
+        function openImportModal() {
+            showNotification('Import Resume feature coming soon!', 'success');
+        }
+
+        // Load candidates on page load
+        document.addEventListener('DOMContentLoaded', loadCandidates);
+    </script>
+
+    <script>
+        (function() {
+            var drawer = document.getElementById('sidebarDrawer');
+            var overlay = document.getElementById('drawerOverlay');
+            var toggle = document.getElementById('drawerToggle');
+            var closeBtn = document.getElementById('drawerClose');
+            if (toggle) toggle.addEventListener('click', function() { document.body.classList.add('drawer-open'); });
+            if (closeBtn) closeBtn.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+            if (overlay) overlay.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+        })();
+    </script>
+
+</body>
+</html>
+

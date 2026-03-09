@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - AI Recruiter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Drawer overlay (for mobile) -->
+    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside class="sidebar drawer" id="sidebarDrawer" role="navigation">
+        <div class="drawer-stars" aria-hidden="true">
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+            <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        </div>
+        <div class="drawer-inner">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-brain"></i></h2>
+                <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/jobs"><i class="fas fa-briefcase"></i> <span>Job Positions</span></a>
+                <a href="/candidates"><i class="fas fa-users"></i> <span>Candidates</span></a>
+                <a href="/ats"><i class="fas fa-file-alt"></i> <span>Resume Screening (AI ATS)</span></a>
+                <a href="/ai-interview"><i class="fas fa-video"></i> <span>AI Interview</span></a>
+                <a href="/pipeline"><i class="fas fa-project-diagram"></i> <span>Talent Pipeline</span></a>
+                <a href="/tools"><i class="fas fa-tools"></i> <span>Recruiter Tools</span></a>
+                <a href="/reports"><i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span></a>
+                <a href="/notifications" class="active"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+                <a href="/settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <footer class="drawer-footer">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="SPRECTEX AI" class="drawer-logo" onerror="this.style.display='none'">
+                <p class="drawer-copyright">© 2025 SPRECTEX AI. All rights reserved.</p>
+                <p class="drawer-version">Version 1.0.0</p>
+                <a href="https://www.sprectexai.com" target="_blank" rel="noopener" class="drawer-website-link">www.sprectexai.com</a>
+            </footer>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main">
+        <div class="dashboard-header">
+            <button class="drawer-toggle" id="drawerToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1>Notifications</h1>
+                <p class="subtitle">Stay updated with recruitment activity, AI insights, and system alerts.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn-secondary" id="markAllRead"><i class="fas fa-check-double"></i> Mark all as read</button>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar: filter tabs + count -->
+        <div class="notifications-toolbar">
+            <div class="notification-filters">
+                <button type="button" class="filter-tab active" data-filter="all">All</button>
+                <button type="button" class="filter-tab" data-filter="unread">Unread</button>
+                <button type="button" class="filter-tab" data-filter="interview">Interviews</button>
+                <button type="button" class="filter-tab" data-filter="candidate">Candidates</button>
+                <button type="button" class="filter-tab" data-filter="ai">AI Insights</button>
+                <button type="button" class="filter-tab" data-filter="system">System</button>
+            </div>
+            <p class="notifications-count"><span id="notificationCount">0</span> notifications</p>
+        </div>
+
+        <!-- Notifications list card -->
+        <div class="notifications-card">
+            <div class="notification-list" id="notificationList">
+                <!-- Interview -->
+                <article class="notification-item unread" data-type="interview" data-id="1">
+                    <span class="notification-dot" aria-hidden="true"></span>
+                    <div class="notification-icon interview">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="notification-body">
+                        <h3 class="notification-title">Interview scheduled</h3>
+                        <p class="notification-text">Sarah Khan – Python Developer. Video call tomorrow at 11:00 AM.</p>
+                        <div class="notification-meta">
+                            <span class="notification-type-badge interview">Interview</span>
+                            <time class="notification-time" datetime="2025-03-09T10:30">Today, 10:30 AM</time>
+                        </div>
+                    </div>
+                    <button type="button" class="notification-action" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>
+                </article>
+
+                <article class="notification-item unread" data-type="candidate" data-id="2">
+                    <span class="notification-dot" aria-hidden="true"></span>
+                    <div class="notification-icon candidate">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="notification-body">
+                        <h3 class="notification-title">New application</h3>
+                        <p class="notification-text">Ali Raza applied for UI/UX Designer. AI match score: 78%.</p>
+                        <div class="notification-meta">
+                            <span class="notification-type-badge candidate">Candidate</span>
+                            <time class="notification-time" datetime="2025-03-09T09:15">Today, 9:15 AM</time>
+                        </div>
+                    </div>
+                    <button type="button" class="notification-action" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>
+                </article>
+
+                <article class="notification-item unread" data-type="ai" data-id="3">
+                    <span class="notification-dot" aria-hidden="true"></span>
+                    <div class="notification-icon ai">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="notification-body">
+                        <h3 class="notification-title">AI insight</h3>
+                        <p class="notification-text">Low candidate pool for "React Developer". Consider relaxing experience or adding more channels.</p>
+                        <div class="notification-meta">
+                            <span class="notification-type-badge ai">AI Insight</span>
+                            <time class="notification-time" datetime="2025-03-08T16:00">Yesterday, 4:00 PM</time>
+                        </div>
+                    </div>
+                    <button type="button" class="notification-action" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>
+                </article>
+
+                <article class="notification-item" data-type="interview" data-id="4">
+                    <span class="notification-dot" aria-hidden="true"></span>
+                    <div class="notification-icon interview">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="notification-body">
+                        <h3 class="notification-title">Interview completed</h3>
+                        <p class="notification-text">Maria Johnson – React Developer. Summary and score available in AI Interview.</p>
+                        <div class="notification-meta">
+                            <span class="notification-type-badge interview">Interview</span>
+                            <time class="notification-time" datetime="2025-03-08T14:30">Yesterday, 2:30 PM</time>
+                        </div>
+                    </div>
+                    <button type="button" class="notification-action" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>
+                </article>
+
+                <article class="notification-item" data-type="system" data-id="5">
+                    <span class="notification-dot" aria-hidden="true"></span>
+                    <div class="notification-icon system">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="notification-body">
+                        <h3 class="notification-title">Pipeline stage updated</h3>
+                        <p class="notification-text">David Chen moved to "Offer" in Data Scientist pipeline.</p>
+                        <div class="notification-meta">
+                            <span class="notification-type-badge system">System</span>
+                            <time class="notification-time" datetime="2025-03-08T11:00">Yesterday, 11:00 AM</time>
+                        </div>
+                    </div>
+                    <button type="button" class="notification-action" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>
+                </article>
+
+                <article class="notification-item" data-type="ai" data-id="6">
+                    <span class="notification-dot" aria-hidden="true"></span>
+                    <div class="notification-icon ai">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="notification-body">
+                        <h3 class="notification-title">Top match</h3>
+                        <p class="notification-text">David Chen scored 95% for Data Scientist. Recommended for immediate interview.</p>
+                        <div class="notification-meta">
+                            <span class="notification-type-badge ai">AI Insight</span>
+                            <time class="notification-time" datetime="2025-03-07T17:45">2 days ago</time>
+                        </div>
+                    </div>
+                    <button type="button" class="notification-action" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>
+                </article>
+
+                <article class="notification-item" data-type="candidate" data-id="7">
+                    <span class="notification-dot" aria-hidden="true"></span>
+                    <div class="notification-icon candidate">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="notification-body">
+                        <h3 class="notification-title">Resume screened</h3>
+                        <p class="notification-text">3 new resumes screened by AI for Python Developer. 2 shortlisted.</p>
+                        <div class="notification-meta">
+                            <span class="notification-type-badge candidate">Candidate</span>
+                            <time class="notification-time" datetime="2025-03-07T10:20">2 days ago</time>
+                        </div>
+                    </div>
+                    <button type="button" class="notification-action" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>
+                </article>
+            </div>
+
+            <!-- Empty state (hidden when list has items) -->
+            <div class="notifications-empty" id="notificationsEmpty" hidden>
+                <div class="notifications-empty-icon">
+                    <i class="fas fa-bell-slash"></i>
+                </div>
+                <h3>No notifications</h3>
+                <p>You're all caught up. New alerts will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var overlay = document.getElementById('drawerOverlay');
+            var toggle = document.getElementById('drawerToggle');
+            var closeBtn = document.getElementById('drawerClose');
+            if (toggle) toggle.addEventListener('click', function() { document.body.classList.add('drawer-open'); });
+            if (closeBtn) closeBtn.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+            if (overlay) overlay.addEventListener('click', function() { document.body.classList.remove('drawer-open'); });
+        })();
+
+        (function() {
+            var list = document.getElementById('notificationList');
+            var countEl = document.getElementById('notificationCount');
+            var emptyEl = document.getElementById('notificationsEmpty');
+            var filterTabs = document.querySelectorAll('.filter-tab');
+            var markAllBtn = document.getElementById('markAllRead');
+            var currentFilter = 'all';
+
+            function updateCount() {
+                var items = list.querySelectorAll('.notification-item');
+                var unread = list.querySelectorAll('.notification-item.unread');
+                countEl.textContent = currentFilter === 'unread' ? unread.length : items.length;
+            }
+
+            function setEmptyState(show) {
+                if (emptyEl) emptyEl.hidden = !show;
+                if (list) list.style.display = show ? 'none' : 'block';
+            }
+
+            function filterItems() {
+                var items = list.querySelectorAll('.notification-item');
+                var visible = 0;
+                items.forEach(function(item) {
+                    var type = item.getAttribute('data-type');
+                    var isUnread = item.classList.contains('unread');
+                    var show = (currentFilter === 'all') ||
+                        (currentFilter === 'unread' && isUnread) ||
+                        (currentFilter === type);
+                    item.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+                setEmptyState(visible === 0);
+                updateCount();
+            }
+
+            filterTabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    filterTabs.forEach(function(t) { t.classList.remove('active'); });
+                    tab.classList.add('active');
+                    currentFilter = tab.getAttribute('data-filter');
+                    filterItems();
+                });
+            });
+
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', function() {
+                    list.querySelectorAll('.notification-item.unread').forEach(function(item) {
+                        item.classList.remove('unread');
+                        var btn = item.querySelector('.notification-action');
+                        if (btn) btn.setAttribute('title', 'Mark as unread');
+                    });
+                    updateCount();
+                });
+            }
+
+            list.addEventListener('click', function(e) {
+                var action = e.target.closest('.notification-action');
+                var item = e.target.closest('.notification-item');
+                if (action && item) {
+                    item.classList.toggle('unread');
+                    action.setAttribute('title', item.classList.contains('unread') ? 'Mark as read' : 'Mark as unread');
+                    updateCount();
+                }
+            });
+
+            updateCount();
+            filterItems();
+        })();
+    </script>
+</body>
+</html>
