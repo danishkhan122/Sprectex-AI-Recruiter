@@ -139,6 +139,23 @@ body.drawer-open .drawer-overlay {
     overflow: hidden;
 }
 
+/* ----- Client logo at top of drawer ----- */
+.drawer-logo-top {
+    flex-shrink: 0;
+    padding: 24px 20px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawer-logo-top .client-logo {
+    max-width: 160px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
 /* ----- Drawer header: fixed height, aligned, gaps ----- */
 .sidebar-header {
     flex-shrink: 0;
